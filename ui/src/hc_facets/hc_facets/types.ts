@@ -35,4 +35,38 @@ export type HcFacetsSignal = {
   link_type: string;
 };
 
-export type EntryTypes = {};
+export type EntryTypes =
+ | ({ type: 'FacetValue'; } & FacetValue)
+ | ({ type: 'FacetOption'; } & FacetOption)
+ | ({  type: 'FacetGroup'; } & FacetGroup);
+
+
+
+export interface FacetGroup { 
+  group_id: string;
+
+  note: string;
+}
+
+
+
+
+export interface FacetOption { 
+  facet_id: string;
+
+  option: string;
+
+  facet_group: ActionHash | undefined;
+}
+
+
+
+
+export interface FacetValue { 
+  facet_value: string;
+
+  facet_option: ActionHash;
+
+  record_type: string | undefined;
+}
+
