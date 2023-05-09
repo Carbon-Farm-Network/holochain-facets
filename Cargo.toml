@@ -1,0 +1,20 @@
+[profile.dev]
+opt-level = "z"
+
+[profile.release]
+opt-level = "z"
+
+[workspace]
+members = ["dnas/*/zomes/coordinator/*", "dnas/*/zomes/integrity/*"]
+
+[workspace.dependencies]
+hdi = "=0.2.2"
+hdk = "=0.1.2"
+holochain_integrity_types = "=0.1.2"
+serde = "1"
+
+[workspace.dependencies.hc_facets]
+path = "dnas/hc_facets/zomes/coordinator/hc_facets"
+
+[workspace.dependencies.hc_facets_integrity]
+path = "dnas/hc_facets/zomes/integrity/hc_facets"

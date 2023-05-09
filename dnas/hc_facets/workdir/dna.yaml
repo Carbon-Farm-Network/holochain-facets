@@ -1,0 +1,19 @@
+---
+manifest_version: "1"
+name: hc_facets
+integrity:
+  network_seed: ~
+  properties: ~
+  origin_time: 1683665215015967
+  zomes:
+    - name: hc_facets_integrity
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/hc_facets_integrity.wasm"
+      dependencies: ~
+coordinator:
+  zomes:
+    - name: hc_facets
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/hc_facets.wasm"
+      dependencies:
+        - name: hc_facets_integrity

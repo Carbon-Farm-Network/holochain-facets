@@ -1,0 +1,19 @@
+---
+manifest_version: "1"
+name: hc-facets
+description: ~
+roles:
+  - name: hc_facets
+    provisioning:
+      strategy: create
+      deferred: false
+    dna:
+      bundled: "../dnas/hc_facets/workdir/hc_facets.dna"
+      modifiers:
+        network_seed: ~
+        properties: ~
+        origin_time: ~
+        quantum_time: ~
+      installed_hash: ~
+      _version: ~
+      clone_limit: 0
