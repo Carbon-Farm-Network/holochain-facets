@@ -21,6 +21,7 @@ pub enum EntryTypes {
 #[derive(Serialize, Deserialize)]
 #[hdk_link_types]
 pub enum LinkTypes {
+    IdentifierToFacetValue,
     FacetGroupUpdates,
     FacetOptionUpdates,
     FacetValueUpdates,
@@ -186,6 +187,14 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             action,
         } => {
             match link_type {
+                LinkTypes::IdentifierToFacetValue => {
+                    validate_create_link_facet_group_updates(
+                        action,
+                        base_address,
+                        target_address,
+                        tag,
+                    )
+                }
                 LinkTypes::FacetGroupUpdates => {
                     validate_create_link_facet_group_updates(
                         action,
@@ -253,6 +262,15 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             action,
         } => {
             match link_type {
+                LinkTypes::IdentifierToFacetValue => {
+                    validate_delete_link_facet_group_updates(
+                        action,
+                        original_action,
+                        base_address,
+                        target_address,
+                        tag,
+                    )
+                }
                 LinkTypes::FacetGroupUpdates => {
                     validate_delete_link_facet_group_updates(
                         action,
@@ -541,6 +559,14 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                     action,
                 } => {
                     match link_type {
+                        LinkTypes::IdentifierToFacetValue => {
+                            validate_create_link_facet_group_updates(
+                                action,
+                                base_address,
+                                target_address,
+                                tag,
+                            )
+                        }
                         LinkTypes::FacetGroupUpdates => {
                             validate_create_link_facet_group_updates(
                                 action,
@@ -622,6 +648,15 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         }
                     };
                     match link_type {
+                        LinkTypes::IdentifierToFacetValue => {
+                            validate_delete_link_facet_group_updates(
+                                action,
+                                create_link.clone(),
+                                base_address,
+                                create_link.target_address,
+                                create_link.tag,
+                            )
+                        }
                         LinkTypes::FacetGroupUpdates => {
                             validate_delete_link_facet_group_updates(
                                 action,

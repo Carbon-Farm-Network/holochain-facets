@@ -63,3 +63,11 @@ export async function createFacetValue(cell: CallableCell, facetValue = undefine
     });
 }
 
+export async function useFacetValue(cell: CallableCell, facetValue = undefined): Promise<Record> {
+    return cell.callZome({
+      zome_name: "hc_facets",
+      fn_name: "use_facet_value",
+      payload: facetValue || await sampleFacetValue(cell),
+    });
+}
+

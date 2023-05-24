@@ -11,6 +11,22 @@ pub fn create_facet_option(facet_option: FacetOption) -> ExternResult<Record> {
                 WasmErrorInner::Guest(String::from("Could not find the newly created FacetOption"))
             ),
         )?;
+
+    if let Some(facet_group_hash) = facet_option.facet_group {
+        create_link(
+            facet_group_hash.clone(),
+            facet_option_hash.clone(),
+            LinkTypes::FacetGroupToFacetOptions,
+            (),
+        )?;
+        create_link(
+            facet_option_hash,
+            facet_group_hash,
+            LinkTypes::FacetOptionToFacetGroups,
+            (),
+        )?;
+    }
+
     Ok(record)
 }
 #[hdk_extern]
