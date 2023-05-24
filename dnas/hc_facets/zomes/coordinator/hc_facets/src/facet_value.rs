@@ -43,7 +43,7 @@ pub fn use_facet_value(input: AddFacetValueForFacetOptionInput) -> ExternResult<
     Ok(())
 }
 #[hdk_extern]
-pub fn retrieve_facet_value(
+pub fn retrieve_facet_values(
     identifier_hash: String,
 ) -> ExternResult<Vec<Record>> {
     let path = Path::from(format!("identifier/{}", identifier_hash.to_string()));
