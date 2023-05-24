@@ -26,17 +26,17 @@ pub fn create_facet_value(facet_value: FacetValue) -> ExternResult<Record> {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AddFacetValueForFacetOptionInput {
     pub facet_value_hash: ActionHash,
-    pub identifier_hash: AnyDhtHash,
+    pub identifier_hash: String,
 }
 #[hdk_extern]
 pub fn use_facet_value(input: AddFacetValueForFacetOptionInput) -> ExternResult<()> {
     let path = Path::from(format!("identifier/{}", input.identifier_hash.to_string()));
     let typed_path = path.typed(LinkTypes::IdentifierToFacetValue)?;
     typed_path.ensure()?;
-    let my_agent_pub_key: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
+    // let my_agent_pub_key: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
     create_link(
         typed_path.path_entry_hash()?,
-        input.identifier_hash,
+        input.facet_value_hash,
         LinkTypes::IdentifierToFacetValue,
         (),
     )?;
@@ -44,8 +44,8 @@ pub fn use_facet_value(input: AddFacetValueForFacetOptionInput) -> ExternResult<
 }
 #[hdk_extern]
 pub fn retrieve_facet_value(
-    identifier_hash: AnyDhtHash,
-) -> ExternResult<Option<Record>> {
+    identifier_hash: String,
+) -> ExternResult<Vec<Record>> {
     let path = Path::from(format!("identifier/{}", identifier_hash.to_string()));
     let typed_path = path.typed(LinkTypes::IdentifierToFacetValue)?;
     let links = get_links(
@@ -53,14 +53,16 @@ pub fn retrieve_facet_value(
         LinkTypes::IdentifierToFacetValue,
         None,
     )?;
-    let latest_link = links
+    let get_input: Vec<GetInput> = links
         .into_iter()
-        .max_by(|link_a, link_b| link_a.timestamp.cmp(&link_b.timestamp));
-    let latest_facet_value_hash = match latest_link {
-        Some(link) => ActionHash::from(link.target.clone()),
-        None => return Ok(None),
-    };
-    Ok(get(latest_facet_value_hash, GetOptions::default())?)
+        .map(|link| GetInput::new(
+            ActionHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected actionhash".into()))).unwrap().into(),
+            GetOptions::default(),
+        ))
+        .collect();
+    let records = HDK.with(|hdk| hdk.borrow().get(get_input))?;
+    let records: Vec<Record> = records.into_iter().filter_map(|r| r).collect();
+    Ok(records)
 }
 #[hdk_extern]
 pub fn get_facet_value(
