@@ -5,6 +5,8 @@
   import '@material/mwc-circular-progress';
 
   import { clientContext } from './contexts';
+    import CreateFacetGroup from './hc_facets/hc_facets/CreateFacetGroup.svelte';
+    import AllGroups from './hc_facets/hc_facets/AllGroups.svelte';
 
   let client: AppAgentClient | undefined;
   let loading = true;
@@ -28,6 +30,8 @@
       <mwc-circular-progress indeterminate />
     </div>
   {:else}
+    <AllGroups />
+    <CreateFacetGroup/>
     <div id="content" style="display: flex; flex-direction: column; flex: 1;">
       <h2>EDIT ME! Add the components of your app here.</h2>
 

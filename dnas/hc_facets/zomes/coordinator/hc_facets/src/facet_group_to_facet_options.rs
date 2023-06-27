@@ -2,8 +2,8 @@ use hdk::prelude::*;
 use hc_facets_integrity::*;
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AddFacetOptionForFacetGroupInput {
-    pub base_facet_group_hash: ActionHash,
-    pub target_facet_option_hash: ActionHash,
+    pub base_facet_group_hash: EntryHash,
+    pub target_facet_option_hash: EntryHash,
 }
 #[hdk_extern]
 pub fn add_facet_option_for_facet_group(
@@ -25,13 +25,13 @@ pub fn add_facet_option_for_facet_group(
 }
 #[hdk_extern]
 pub fn get_facet_options_for_facet_group(
-    facet_group_hash: ActionHash,
+    facet_group_hash: EntryHash,
 ) -> ExternResult<Vec<Record>> {
     let links = get_links(facet_group_hash, LinkTypes::FacetGroupToFacetOptions, None)?;
     let get_input: Vec<GetInput> = links
         .into_iter()
         .map(|link| GetInput::new(
-            ActionHash::from(link.target).into(),
+            EntryHash::from(link.target).into(),
             GetOptions::default(),
         ))
         .collect();
@@ -44,13 +44,13 @@ pub fn get_facet_options_for_facet_group(
 }
 #[hdk_extern]
 pub fn get_facet_groups_for_facet_option(
-    facet_option_hash: ActionHash,
+    facet_option_hash: EntryHash,
 ) -> ExternResult<Vec<Record>> {
     let links = get_links(facet_option_hash, LinkTypes::FacetOptionToFacetGroups, None)?;
     let get_input: Vec<GetInput> = links
         .into_iter()
         .map(|link| GetInput::new(
-            ActionHash::from(link.target).into(),
+            EntryHash::from(link.target).into(),
             GetOptions::default(),
         ))
         .collect();
@@ -63,8 +63,8 @@ pub fn get_facet_groups_for_facet_option(
 }
 #[derive(Serialize, Deserialize, Debug)]
 pub struct RemoveFacetOptionForFacetGroupInput {
-    pub base_facet_group_hash: ActionHash,
-    pub target_facet_option_hash: ActionHash,
+    pub base_facet_group_hash: EntryHash,
+    pub target_facet_option_hash: EntryHash,
 }
 #[hdk_extern]
 pub fn remove_facet_option_for_facet_group(
@@ -76,7 +76,7 @@ pub fn remove_facet_option_for_facet_group(
         None,
     )?;
     for link in links {
-        if ActionHash::from(link.target.clone()).eq(&input.target_facet_option_hash) {
+        if EntryHash::from(link.target.clone()).eq(&input.target_facet_option_hash) {
             delete_link(link.create_link_hash)?;
         }
     }
@@ -86,7 +86,7 @@ pub fn remove_facet_option_for_facet_group(
         None,
     )?;
     for link in links {
-        if ActionHash::from(link.target.clone()).eq(&input.base_facet_group_hash) {
+        if EntryHash::from(link.target.clone()).eq(&input.base_facet_group_hash) {
             delete_link(link.create_link_hash)?;
         }
     }

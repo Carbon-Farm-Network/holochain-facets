@@ -1,29 +1,30 @@
 use hdi::prelude::*;
 #[hdk_entry_helper]
 #[derive(Clone, PartialEq)]
-pub struct FacetOption {
-    pub facet_id: String,
-    pub option: String,
-    pub facet_group: Option<ActionHash>,
+#[serde(rename_all = "camelCase")]
+pub struct Facet {
+    pub name: String,
+    pub note: String,
+    pub facet_group_id: Option<EntryHash>,
 }
 pub fn validate_create_facet_option(
     _action: EntryCreationAction,
-    _facet_option: FacetOption,
+    _facet_option: Facet,
 ) -> ExternResult<ValidateCallbackResult> {
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_update_facet_option(
     _action: Update,
-    _facet_option: FacetOption,
+    _facet_option: Facet,
     _original_action: EntryCreationAction,
-    _original_facet_option: FacetOption,
+    _original_facet_option: Facet,
 ) -> ExternResult<ValidateCallbackResult> {
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_delete_facet_option(
     _action: Delete,
     _original_action: EntryCreationAction,
-    _original_facet_option: FacetOption,
+    _original_facet_option: Facet,
 ) -> ExternResult<ValidateCallbackResult> {
     Ok(ValidateCallbackResult::Valid)
 }
@@ -35,7 +36,7 @@ pub fn validate_create_link_facet_option_updates(
 ) -> ExternResult<ValidateCallbackResult> {
     let action_hash = ActionHash::from(base_address);
     let record = must_get_valid_record(action_hash)?;
-    let _facet_option: crate::FacetOption = record
+    let _facet_option: crate::Facet = record
         .entry()
         .to_app_option()
         .map_err(|e| wasm_error!(e))?
@@ -46,7 +47,7 @@ pub fn validate_create_link_facet_option_updates(
         )?;
     let action_hash = ActionHash::from(target_address);
     let record = must_get_valid_record(action_hash)?;
-    let _facet_option: crate::FacetOption = record
+    let _facet_option: crate::Facet = record
         .entry()
         .to_app_option()
         .map_err(|e| wasm_error!(e))?

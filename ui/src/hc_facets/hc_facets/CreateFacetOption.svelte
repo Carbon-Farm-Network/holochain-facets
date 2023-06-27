@@ -16,22 +16,23 @@ const dispatch = createEventDispatcher();
 export let facetGroup: ActionHash | undefined;
 
 
-let facetId: string = '';
-let option: string = '';
+let name: string = '';
+let note: string = '';
 
 let errorSnackbar: Snackbar;
 
-$: facetId, option, facetGroup;
-$: isFacetOptionValid = true && facetId !== '' && option !== '';
+$: name, note, facetGroup;
+$: isFacetOptionValid = true && name !== '' && note !== '';
 
 onMount(() => {
 });
 
-async function createFacetOption() {  
-  const facetOptionEntry: FacetOption = { 
-    facet_id: facetId!,
-    option: option!,
-    facet_group: facetGroup,
+async function createFacetOption() {
+  console.log(facetGroup)
+  const facetOptionEntry: FacetOption = {
+    name: name!,
+    note: note!,
+    facetGroupId: facetGroup!,
   };
   
   try {
@@ -54,14 +55,15 @@ async function createFacetOption() {
 </mwc-snackbar>
 <div style="display: flex; flex-direction: column">
   <span style="font-size: 18px">Create FacetOption</span>
-  
+  {JSON.stringify(facetGroup)}
+  gh
 
   <div style="margin-bottom: 16px">
-    <mwc-textarea outlined label="Facet Id" value={ facetId } on:input={e => { facetId = e.target.value;} } required></mwc-textarea>          
+    <mwc-textarea outlined label="Facet Id" value={ name } on:input={e => { name = e.target.value;} } required></mwc-textarea>          
   </div>
             
   <div style="margin-bottom: 16px">
-    <mwc-textfield outlined label="Option" value={ option } on:input={e => { option = e.target.value; } } required></mwc-textfield>          
+    <mwc-textfield outlined label="Option" value={ note } on:input={e => { note = e.target.value; } } required></mwc-textfield>          
   </div>
             
 

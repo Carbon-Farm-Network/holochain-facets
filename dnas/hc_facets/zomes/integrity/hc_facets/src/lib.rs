@@ -15,7 +15,7 @@ use hdi::prelude::*;
 #[unit_enum(UnitEntryTypes)]
 pub enum EntryTypes {
     FacetGroup(FacetGroup),
-    FacetOption(FacetOption),
+    FacetOption(Facet),
     FacetValue(FacetValue),
 }
 #[derive(Serialize, Deserialize)]
@@ -29,6 +29,7 @@ pub enum LinkTypes {
     FacetOptionToFacetGroups,
     FacetOptionToFacetValues,
     FacetValueToFacetOptions,
+    AllGroups,
 }
 #[hdk_extern]
 pub fn genesis_self_check(
@@ -251,6 +252,14 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         tag,
                     )
                 }
+                LinkTypes::AllGroups => {
+                    validate_create_link_all_groups(
+                        action,
+                        base_address,
+                        target_address,
+                        tag,
+                    )
+                }
             }
         }
         FlatOp::RegisterDeleteLink {
@@ -327,6 +336,15 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 }
                 LinkTypes::FacetValueToFacetOptions => {
                     validate_delete_link_facet_value_to_facet_options(
+                        action,
+                        original_action,
+                        base_address,
+                        target_address,
+                        tag,
+                    )
+                }
+                LinkTypes::AllGroups => {
+                    validate_delete_link_all_groups(
                         action,
                         original_action,
                         base_address,
@@ -418,7 +436,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 facet_option.clone(),
                             )?;
                             if let ValidateCallbackResult::Valid = result {
-                                let original_facet_option: Option<FacetOption> = original_record
+                                let original_facet_option: Option<Facet> = original_record
                                     .entry()
                                     .to_app_option()
                                     .map_err(|e| wasm_error!(e))?;
@@ -623,6 +641,14 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 tag,
                             )
                         }
+                        LinkTypes::AllGroups => {
+                            validate_create_link_all_groups(
+                                action,
+                                base_address,
+                                target_address,
+                                tag,
+                            )
+                        }
                     }
                 }
                 OpRecord::DeleteLink { original_action_hash, base_address, action } => {
@@ -713,6 +739,15 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         }
                         LinkTypes::FacetValueToFacetOptions => {
                             validate_delete_link_facet_value_to_facet_options(
+                                action,
+                                create_link.clone(),
+                                base_address,
+                                create_link.target_address,
+                                create_link.tag,
+                            )
+                        }
+                        LinkTypes::AllGroups => {
+                            validate_delete_link_all_groups(
                                 action,
                                 create_link.clone(),
                                 base_address,

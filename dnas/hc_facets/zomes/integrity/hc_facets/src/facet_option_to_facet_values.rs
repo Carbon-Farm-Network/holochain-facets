@@ -7,7 +7,7 @@ pub fn validate_create_link_facet_option_to_facet_values(
 ) -> ExternResult<ValidateCallbackResult> {
     let action_hash = ActionHash::from(base_address);
     let record = must_get_valid_record(action_hash)?;
-    let _facet_option: crate::FacetOption = record
+    let _facet_option: crate::Facet = record
         .entry()
         .to_app_option()
         .map_err(|e| wasm_error!(e))?
@@ -44,7 +44,6 @@ pub fn validate_create_link_facet_value_to_facet_options(
     target_address: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    // Check the entry type for the given action hash
     let action_hash = ActionHash::from(base_address);
     let record = must_get_valid_record(action_hash)?;
     let _facet_value: crate::FacetValue = record
@@ -56,10 +55,9 @@ pub fn validate_create_link_facet_value_to_facet_options(
                 WasmErrorInner::Guest(String::from("Linked action must reference an entry"))
             ),
         )?;
-    // Check the entry type for the given action hash
     let action_hash = ActionHash::from(target_address);
     let record = must_get_valid_record(action_hash)?;
-    let _facet_option: crate::FacetOption = record
+    let _facet_option: crate::Facet = record
         .entry()
         .to_app_option()
         .map_err(|e| wasm_error!(e))?
@@ -68,7 +66,6 @@ pub fn validate_create_link_facet_value_to_facet_options(
                 WasmErrorInner::Guest(String::from("Linked action must reference an entry"))
             ),
         )?;
-    // TODO: add the appropriate validation rules
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_delete_link_facet_value_to_facet_options(
@@ -78,6 +75,5 @@ pub fn validate_delete_link_facet_value_to_facet_options(
     _target: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    // TODO: add the appropriate validation rules
     Ok(ValidateCallbackResult::Valid)
 }

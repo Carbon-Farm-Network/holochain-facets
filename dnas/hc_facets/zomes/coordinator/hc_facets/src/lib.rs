@@ -1,11 +1,26 @@
+pub mod all_groups;
 pub mod facet_option_to_facet_values;
-
 pub mod facet_group_to_facet_options;
 pub mod facet_value;
 pub mod facet_option;
 pub mod facet_group;
 use hdk::prelude::*;
 use hc_facets_integrity::*;
+pub(crate) fn try_decode_entry<T>(entry: Entry) -> ExternResult<T>
+where
+    SerializedBytes: TryInto<T, Error = SerializedBytesError>,
+{
+    match entry {
+        Entry::App(content) => {
+            let decoded: Result<T, SerializedBytesError> = content.into_sb().try_into();
+            match decoded {
+                Ok(decoded) => Ok(decoded),
+                Err(err) => Err(wasm_error!(WasmErrorInner::Guest(err.to_string()))),
+            }
+        }
+        _ => Err(wasm_error!(WasmErrorInner::Guest("Unable to deserialize".to_string()))),
+    }
+}
 #[hdk_extern]
 pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
     Ok(InitCallbackResult::Pass)

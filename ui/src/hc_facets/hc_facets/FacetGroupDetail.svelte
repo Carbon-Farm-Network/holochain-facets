@@ -107,7 +107,7 @@ async function deleteFacetGroup() {
 
   <div style="display: flex; flex-direction: row; margin-bottom: 16px">
     <span style="margin-right: 4px"><strong>Group Id:</strong></span>
-    <span style="white-space: pre-line">{ facetGroup.group_id }</span>
+    <span style="white-space: pre-line">{ facetGroup.name }</span>
   </div>
 
   <div style="display: flex; flex-direction: row; margin-bottom: 16px">

@@ -1,10 +1,11 @@
 use hdi::prelude::*;
 #[hdk_entry_helper]
 #[derive(Clone, PartialEq)]
+#[serde(rename_all = "camelCase")]
 pub struct FacetValue {
-    pub facet_value: String,
-    pub facet_option: ActionHash,
-    pub record_type: Option<String>,
+    pub value: String,
+    pub facet_id: EntryHash,
+    pub note: Option<String>,
 }
 pub fn validate_create_facet_value(
     _action: EntryCreationAction,

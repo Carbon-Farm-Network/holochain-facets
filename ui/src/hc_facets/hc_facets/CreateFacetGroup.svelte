@@ -14,20 +14,20 @@ let client: AppAgentClient = (getContext(clientContext) as any).getClient();
 const dispatch = createEventDispatcher();
 
 
-let groupId: string = '';
+let name: string = '';
 let note: string = '';
 
 let errorSnackbar: Snackbar;
 
-$: groupId, note;
-$: isFacetGroupValid = true && groupId !== '' && note !== '';
+$: name, note;
+$: isFacetGroupValid = true //&& name !== '' && note !== '';
 
 onMount(() => {
 });
 
 async function createFacetGroup() {  
   const facetGroupEntry: FacetGroup = { 
-    group_id: groupId!,
+    name: name!,
     note: note!,
   };
   
@@ -39,7 +39,7 @@ async function createFacetGroup() {
       fn_name: 'create_facet_group',
       payload: facetGroupEntry,
     });
-    dispatch('facet-group-created', { facetGroupHash: record.signed_action.hashed.hash });
+    // dispatch('facet-group-created', { facetGroupHash: record.signed_action.hashed.hash });
   } catch (e) {
     errorSnackbar.labelText = `Error creating the facet group: ${e.data.data}`;
     errorSnackbar.show();
@@ -54,7 +54,7 @@ async function createFacetGroup() {
   
 
   <div style="margin-bottom: 16px">
-    <mwc-textarea outlined label="Group Id" value={ groupId } on:input={e => { groupId = e.target.value;} } required></mwc-textarea>          
+    <mwc-textarea outlined label="Group Id" value={ name } on:input={e => { name = e.target.value;} } required></mwc-textarea>          
   </div>
             
   <div style="margin-bottom: 16px">

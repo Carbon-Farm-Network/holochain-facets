@@ -1,10 +1,12 @@
 use hdk::prelude::*;
 use hc_facets_integrity::*;
 #[hdk_extern]
-pub fn create_facet_option(facet_option: FacetOption) -> ExternResult<Record> {
+pub fn create_facet_option(facet_option: Facet) -> ExternResult<Record> {
+    debug!("----------create_facet_option-1 ({:?})", facet_option.clone());
     let facet_option_hash = create_entry(
         &EntryTypes::FacetOption(facet_option.clone()),
     )?;
+    debug!("----------create_facet_option-2 ({:?})", facet_option_hash.clone());
     let record = get(facet_option_hash.clone(), GetOptions::default())?
         .ok_or(
             wasm_error!(
@@ -12,7 +14,10 @@ pub fn create_facet_option(facet_option: FacetOption) -> ExternResult<Record> {
             ),
         )?;
 
-    if let Some(facet_group_hash) = facet_option.facet_group {
+    debug!("----------create_facet_option-3 ({:?})", record.clone());
+
+    if let Some(facet_group_hash) = facet_option.facet_group_id {
+        debug!("----------create_facet_option-4 ({:?})", facet_group_hash.clone());
         create_link(
             facet_group_hash.clone(),
             facet_option_hash.clone(),
@@ -25,13 +30,14 @@ pub fn create_facet_option(facet_option: FacetOption) -> ExternResult<Record> {
             LinkTypes::FacetOptionToFacetGroups,
             (),
         )?;
+    } else {
+        debug!("----------create_facet_option-5 ({:?})", facet_option.clone());
     }
-
     Ok(record)
 }
 #[hdk_extern]
 pub fn get_facet_option(
-    original_facet_option_hash: ActionHash,
+    original_facet_option_hash: EntryHash,
 ) -> ExternResult<Option<Record>> {
     let links = get_links(
         original_facet_option_hash.clone(),
@@ -42,7 +48,7 @@ pub fn get_facet_option(
         .into_iter()
         .max_by(|link_a, link_b| link_a.timestamp.cmp(&link_b.timestamp));
     let latest_facet_option_hash = match latest_link {
-        Some(link) => ActionHash::from(link.target.clone()),
+        Some(link) => EntryHash::from(link.target.clone()),
         None => original_facet_option_hash.clone(),
     };
     get(latest_facet_option_hash, GetOptions::default())
@@ -51,7 +57,7 @@ pub fn get_facet_option(
 pub struct UpdateFacetOptionInput {
     pub original_facet_option_hash: ActionHash,
     pub previous_facet_option_hash: ActionHash,
-    pub updated_facet_option: FacetOption,
+    pub updated_facet_option: Facet,
 }
 #[hdk_extern]
 pub fn update_facet_option(input: UpdateFacetOptionInput) -> ExternResult<Record> {

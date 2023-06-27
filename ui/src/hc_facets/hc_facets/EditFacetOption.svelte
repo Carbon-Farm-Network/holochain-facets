@@ -24,7 +24,7 @@ let option: string | undefined = currentFacetOption.option;
 
 let errorSnackbar: Snackbar;
 
-$: facetId, option, ;
+$: facetId, option;
 $: isFacetOptionValid = true && facetId !== '' && option !== '';
 
 onMount(() => {

@@ -10,14 +10,14 @@ pub fn create_facet_value(facet_value: FacetValue) -> ExternResult<Record> {
             ),
         )?;
     create_link(
-        facet_value.facet_option.clone(),
+        facet_value.facet_id.clone(),
         facet_value_hash.clone(),
         LinkTypes::FacetOptionToFacetValues,
         (),
     )?;
     create_link(
         facet_value_hash,
-        facet_value.facet_option,
+        facet_value.facet_id,
         LinkTypes::FacetOptionToFacetValues,
         (),
     )?;
@@ -25,7 +25,7 @@ pub fn create_facet_value(facet_value: FacetValue) -> ExternResult<Record> {
 }
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AddFacetValueForFacetOptionInput {
-    pub facet_value_hash: ActionHash,
+    pub facet_value_hash: EntryHash,
     pub identifier_hash: String,
 }
 #[hdk_extern]
@@ -33,7 +33,6 @@ pub fn use_facet_value(input: AddFacetValueForFacetOptionInput) -> ExternResult<
     let path = Path::from(format!("identifier/{}", input.identifier_hash.to_string()));
     let typed_path = path.typed(LinkTypes::IdentifierToFacetValue)?;
     typed_path.ensure()?;
-    // let my_agent_pub_key: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
     create_link(
         typed_path.path_entry_hash()?,
         input.facet_value_hash,
@@ -43,9 +42,7 @@ pub fn use_facet_value(input: AddFacetValueForFacetOptionInput) -> ExternResult<
     Ok(())
 }
 #[hdk_extern]
-pub fn retrieve_facet_values(
-    identifier_hash: String,
-) -> ExternResult<Vec<Record>> {
+pub fn retrieve_facet_values(identifier_hash: String) -> ExternResult<Vec<Record>> {
     let path = Path::from(format!("identifier/{}", identifier_hash.to_string()));
     let typed_path = path.typed(LinkTypes::IdentifierToFacetValue)?;
     let links = get_links(
@@ -56,7 +53,12 @@ pub fn retrieve_facet_values(
     let get_input: Vec<GetInput> = links
         .into_iter()
         .map(|link| GetInput::new(
-            ActionHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected actionhash".into()))).unwrap().into(),
+            EntryHash::try_from(link.target)
+                .map_err(|_| {
+                    wasm_error!(WasmErrorInner::Guest("Expected entry hash".into()))
+                })
+                .unwrap()
+                .into(),
             GetOptions::default(),
         ))
         .collect();
@@ -66,7 +68,7 @@ pub fn retrieve_facet_values(
 }
 #[hdk_extern]
 pub fn get_facet_value(
-    original_facet_value_hash: ActionHash,
+    original_facet_value_hash: EntryHash,
 ) -> ExternResult<Option<Record>> {
     let links = get_links(
         original_facet_value_hash.clone(),
@@ -77,7 +79,7 @@ pub fn get_facet_value(
         .into_iter()
         .max_by(|link_a, link_b| link_a.timestamp.cmp(&link_b.timestamp));
     let latest_facet_value_hash = match latest_link {
-        Some(link) => ActionHash::from(link.target.clone()),
+        Some(link) => EntryHash::from(link.target.clone()),
         None => original_facet_value_hash.clone(),
     };
     get(latest_facet_value_hash, GetOptions::default())

@@ -48,6 +48,8 @@ onMount(async () => {
 
 </script>
 
+{hashes}
+
 {#if loading }
 <div style="display: flex; flex: 1; align-items: center; justify-content: center">
   <mwc-circular-progress indeterminate></mwc-circular-progress>
@@ -60,7 +62,8 @@ onMount(async () => {
 <div style="display: flex; flex-direction: column">
   {#each hashes as hash}
     <div style="margin-bottom: 8px;">
-      <FacetOptionDetail facetOptionHash={hash}></FacetOptionDetail>
+      {hash}
+      <!-- <FacetOptionDetail facetOptionHash={hash}></FacetOptionDetail> -->
     </div>
   {/each}
 </div>

@@ -5,28 +5,29 @@ pub fn validate_create_link_facet_group_to_facet_options(
     target_address: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    let action_hash = ActionHash::from(base_address);
-    let record = must_get_valid_record(action_hash)?;
-    let _facet_group: crate::FacetGroup = record
-        .entry()
-        .to_app_option()
-        .map_err(|e| wasm_error!(e))?
-        .ok_or(
-            wasm_error!(
-                WasmErrorInner::Guest(String::from("Linked action must reference an entry"))
-            ),
-        )?;
-    let action_hash = ActionHash::from(target_address);
-    let record = must_get_valid_record(action_hash)?;
-    let _facet_option: crate::FacetOption = record
-        .entry()
-        .to_app_option()
-        .map_err(|e| wasm_error!(e))?
-        .ok_or(
-            wasm_error!(
-                WasmErrorInner::Guest(String::from("Linked action must reference an entry"))
-            ),
-        )?;
+    // let action_hash = ActionHash::from(base_address);
+    let entry_hash = EntryHash::from(base_address);
+    // let record = must_get_valid_record(entry_hash)?;
+    // let _facet_group: crate::FacetGroup = record
+    //     .entry()
+    //     .to_app_option()
+    //     .map_err(|e| wasm_error!(e))?
+    //     .ok_or(
+    //         wasm_error!(
+    //             WasmErrorInner::Guest(String::from("Linked action must reference an entry"))
+    //         ),
+    //     )?;
+    let entry_hash = EntryHash::from(target_address);
+    // let record = must_get_valid_record(action_hash)?;
+    // let _facet_option: crate::Facet = record
+    //     .entry()
+    //     .to_app_option()
+    //     .map_err(|e| wasm_error!(e))?
+    //     .ok_or(
+    //         wasm_error!(
+    //             WasmErrorInner::Guest(String::from("Linked action must reference an entry"))
+    //         ),
+    //     )?;
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_delete_link_facet_group_to_facet_options(
@@ -44,28 +45,28 @@ pub fn validate_create_link_facet_option_to_facet_groups(
     target_address: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    let action_hash = ActionHash::from(base_address);
-    let record = must_get_valid_record(action_hash)?;
-    let _facet_option: crate::FacetOption = record
-        .entry()
-        .to_app_option()
-        .map_err(|e| wasm_error!(e))?
-        .ok_or(
-            wasm_error!(
-                WasmErrorInner::Guest(String::from("Linked action must reference an entry"))
-            ),
-        )?;
-    let action_hash = ActionHash::from(target_address);
-    let record = must_get_valid_record(action_hash)?;
-    let _facet_group: crate::FacetGroup = record
-        .entry()
-        .to_app_option()
-        .map_err(|e| wasm_error!(e))?
-        .ok_or(
-            wasm_error!(
-                WasmErrorInner::Guest(String::from("Linked action must reference an entry"))
-            ),
-        )?;
+    let entry_hash = EntryHash::from(base_address);
+    // let record = must_get_valid_record(action_hash)?;
+    // let _facet_option: crate::Facet = record
+    //     .entry()
+    //     .to_app_option()
+    //     .map_err(|e| wasm_error!(e))?
+    //     .ok_or(
+    //         wasm_error!(
+    //             WasmErrorInner::Guest(String::from("Linked action must reference an entry"))
+    //         ),
+    //     )?;
+    let entry_hash = EntryHash::from(target_address);
+    // let record = must_get_valid_record(action_hash)?;
+    // let _facet_group: crate::FacetGroup = record
+    //     .entry()
+    //     .to_app_option()
+    //     .map_err(|e| wasm_error!(e))?
+    //     .ok_or(
+    //         wasm_error!(
+    //             WasmErrorInner::Guest(String::from("Linked action must reference an entry"))
+    //         ),
+    //     )?;
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_delete_link_facet_option_to_facet_groups(

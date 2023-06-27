@@ -43,7 +43,7 @@ export type EntryTypes =
 
 
 export interface FacetGroup { 
-  group_id: string;
+  name: string;
 
   note: string;
 }
@@ -52,11 +52,11 @@ export interface FacetGroup {
 
 
 export interface FacetOption { 
-  facet_id: string;
+  name: string;
 
-  option: string;
+  note: string;
 
-  facet_group: ActionHash | undefined;
+  facetGroupId: ActionHash | undefined;
 }
 
 
