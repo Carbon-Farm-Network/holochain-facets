@@ -43,6 +43,7 @@ async function createFacetOption() {
       fn_name: 'create_facet_option',
       payload: facetOptionEntry,
     });
+    console.log(record)
     dispatch('facet-option-created', { facetOptionHash: record.signed_action.hashed.hash });
   } catch (e) {
     errorSnackbar.labelText = `Error creating the facet option: ${e.data.data}`;

@@ -1,7 +1,16 @@
 use hdk::prelude::*;
 use hc_facets_integrity::*;
+use crate::try_decode_entry;
+#[derive(Clone, Serialize, Deserialize, SerializedBytes, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct FacetValueResponseParams {
+    pub id: EntryHash,
+    pub revision_id: ActionHash,
+    pub value: String,
+    pub facet_id: EntryHash,
+}
 #[hdk_extern]
-pub fn create_facet_value(facet_value: FacetValue) -> ExternResult<Record> {
+pub fn create_facet_value(facet_value: FacetValue) -> ExternResult<FacetValueResponseParams> {
     let facet_value_hash = create_entry(&EntryTypes::FacetValue(facet_value.clone()))?;
     let record = get(facet_value_hash.clone(), GetOptions::default())?
         .ok_or(
@@ -16,13 +25,65 @@ pub fn create_facet_value(facet_value: FacetValue) -> ExternResult<Record> {
         (),
     )?;
     create_link(
-        facet_value_hash,
+        facet_value_hash.clone(),
         facet_value.facet_id,
         LinkTypes::FacetOptionToFacetValues,
         (),
     )?;
-    Ok(record)
+    // Ok(record)
+
+    let response: FacetValue = try_decode_entry(
+        record.entry().as_option().unwrap().to_owned(),
+    )?;
+
+    Ok(FacetValueResponseParams {
+        id: hash_entry(response.clone())?,
+        revision_id: facet_value_hash,
+        value: response.value,
+        facet_id: response.facet_id,
+    })
 }
+
+#[hdk_extern]
+pub fn get_facet_values_for_facet_option(
+    facet_option_hash: EntryHash,
+) -> ExternResult<Vec<FacetValueResponseParams>> {
+    let links = get_links(facet_option_hash, LinkTypes::FacetOptionToFacetValues, None)?;
+    let get_input: Vec<GetInput> = links
+        .into_iter()
+        .map(|link| GetInput::new(
+            EntryHash::from(link.target).into(),
+            GetOptions::default(),
+        ))
+        .collect();
+    let records: Vec<Record> = HDK
+        .with(|hdk| hdk.borrow().get(get_input))?
+        .into_iter()
+        .filter_map(|r| r)
+        .collect();
+    // Ok(records)
+
+    let mut output: Vec<FacetValueResponseParams> = vec![];
+    for item in records.iter() {
+        emit_signal(item.clone())?;
+        let fv: FacetValue = item
+          .entry()
+          .to_app_option()
+          .map_err(|err| wasm_error!(err))?
+          .ok_or(wasm_error!(WasmErrorInner::Guest(
+              "Could not deserialize record to Facet.".into(),
+          )))?;
+        output.push(FacetValueResponseParams {
+            id: hash_entry(fv.clone())?,
+            revision_id: item.signed_action.as_hash().to_owned(),
+            value: fv.value,
+            facet_id: fv.facet_id,
+        })
+    }
+
+    Ok(output)
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AddFacetValueForFacetOptionInput {
     pub facet_value_hash: EntryHash,

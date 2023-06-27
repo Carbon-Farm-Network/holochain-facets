@@ -1,12 +1,23 @@
 use hdk::prelude::*;
 use hc_facets_integrity::*;
+use crate::try_decode_entry;
+#[derive(Clone, Serialize, Deserialize, SerializedBytes, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct FacetOptionResponseParams {
+    pub id: EntryHash,
+    pub revision_id: ActionHash,
+    pub name: String,
+    pub note: String,
+    pub facet_group_id: Option<EntryHash>,
+}
+
 #[hdk_extern]
-pub fn create_facet_option(facet_option: Facet) -> ExternResult<Record> {
-    debug!("----------create_facet_option-1 ({:?})", facet_option.clone());
+pub fn create_facet_option(facet_option: Facet) -> ExternResult<FacetOptionResponseParams> {
+    // debug!("----------create_facet_option-1 ({:?})", facet_option.clone());
     let facet_option_hash = create_entry(
         &EntryTypes::FacetOption(facet_option.clone()),
     )?;
-    debug!("----------create_facet_option-2 ({:?})", facet_option_hash.clone());
+    // debug!("----------create_facet_option-2 ({:?})", facet_option_hash.clone());
     let record = get(facet_option_hash.clone(), GetOptions::default())?
         .ok_or(
             wasm_error!(
@@ -14,10 +25,10 @@ pub fn create_facet_option(facet_option: Facet) -> ExternResult<Record> {
             ),
         )?;
 
-    debug!("----------create_facet_option-3 ({:?})", record.clone());
+    // debug!("----------create_facet_option-3 ({:?})", record.clone());
 
     if let Some(facet_group_hash) = facet_option.facet_group_id {
-        debug!("----------create_facet_option-4 ({:?})", facet_group_hash.clone());
+        // debug!("----------create_facet_option-4 ({:?})", facet_group_hash.clone());
         create_link(
             facet_group_hash.clone(),
             facet_option_hash.clone(),
@@ -25,16 +36,70 @@ pub fn create_facet_option(facet_option: Facet) -> ExternResult<Record> {
             (),
         )?;
         create_link(
-            facet_option_hash,
-            facet_group_hash,
+            facet_option_hash.clone(),
+            facet_group_hash.clone(),
             LinkTypes::FacetOptionToFacetGroups,
             (),
         )?;
     } else {
         debug!("----------create_facet_option-5 ({:?})", facet_option.clone());
     }
-    Ok(record)
+
+    let response: Facet = try_decode_entry(
+        record.entry().as_option().unwrap().to_owned(),
+    )?;
+
+    Ok(FacetOptionResponseParams {
+        id: hash_entry(response.clone())?,
+        revision_id: facet_option_hash,
+        name: response.name,
+        note: response.note,
+        facet_group_id: response.facet_group_id,
+    })
+    // Ok(record)
 }
+
+#[hdk_extern]
+pub fn get_facet_options_for_facet_group(
+    facet_group_hash: EntryHash,
+) -> ExternResult<Vec<FacetOptionResponseParams>> {
+    let links = get_links(facet_group_hash, LinkTypes::FacetGroupToFacetOptions, None)?;
+    let get_input: Vec<GetInput> = links
+        .into_iter()
+        .map(|link| GetInput::new(
+            EntryHash::from(link.target).into(),
+            GetOptions::default(),
+        ))
+        .collect();
+    let records: Vec<Record> = HDK
+        .with(|hdk| hdk.borrow().get(get_input))?
+        .into_iter()
+        .filter_map(|r| r)
+        .collect();
+    // Ok(records)
+
+    let mut output: Vec<FacetOptionResponseParams> = vec![];
+    for item in records.iter() {
+        emit_signal(item.clone())?;
+        let facet: Facet = item
+          .entry()
+          .to_app_option()
+          .map_err(|err| wasm_error!(err))?
+          .ok_or(wasm_error!(WasmErrorInner::Guest(
+              "Could not deserialize record to Facet.".into(),
+          )))?;
+        output.push(FacetOptionResponseParams {
+            id: hash_entry(facet.clone())?,
+            revision_id: item.signed_action.as_hash().to_owned(),
+            name: facet.name,
+            note: facet.note,
+            facet_group_id: facet.facet_group_id,
+        })
+    }
+
+    Ok(output)
+}
+
 #[hdk_extern]
 pub fn get_facet_option(
     original_facet_option_hash: EntryHash,
