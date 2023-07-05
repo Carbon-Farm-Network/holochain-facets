@@ -40,6 +40,7 @@ async function fetchFacetGroups() {
       payload: null,
     });
     groups = records;
+    // console.log(groups)
     // hashes = records.map(r => r.signed_action.hashed.hash);
   } catch (e) {
     error = e;
@@ -59,12 +60,14 @@ async function fetchFacetGroups() {
 <span>No facet groups found.</span> -->
 {:else}
 <div style="display: flex; flex-direction: column">
-  <!-- {JSON.stringify(groups[0].id)} -->
+  {JSON.stringify(groups[0].revisionId)}
   {#each groups as g}
     <div style="margin-bottom: 8px;">
-      {JSON.stringify(g.id)}
+      -------------------FACET GROUP--------------------
+      {g.id}
       <FacetOptionsForFacetGroup facetGroupHash={g.id}></FacetOptionsForFacetGroup>
       <CreateFacetOption facetGroup={g.id} on:facet-group-created={() => fetchFacetGroups()}></CreateFacetOption>
+    -------------------------------------------------------
     </div>
   {/each}
 </div>

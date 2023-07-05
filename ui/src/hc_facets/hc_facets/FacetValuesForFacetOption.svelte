@@ -6,7 +6,7 @@ import { clientContext } from '../../contexts';
 import FacetValueDetail from './FacetValueDetail.svelte';
 import type { HcFacetsSignal } from './types';
 
-export let facetOptionHash: ActionHash;
+export let facetOptionHash: EntryHash;
 
 let client: AppAgentClient = (getContext(clientContext) as any).getClient();
 
@@ -30,7 +30,9 @@ onMount(async () => {
       fn_name: 'get_facet_values_for_facet_option',
       payload: facetOptionHash,
     });
-    hashes = records.map(r => r.signed_action.hashed.hash);
+    console.log(records)
+    // hashes = records.map(r => r.signed_action.hashed.hash);
+    loading = false;
   } catch (e) {
     error = e;
   }

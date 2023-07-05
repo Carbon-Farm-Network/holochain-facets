@@ -18,6 +18,7 @@ export let facetOption!: ActionHash;
 let facetValue: string = '';
 let recordType: string | undefined = '';
 
+
 let errorSnackbar: Snackbar;
 
 $: facetValue, facetOption, recordType;
@@ -31,9 +32,9 @@ onMount(() => {
 
 async function createFacetValue() {  
   const facetValueEntry: FacetValue = { 
-    facet_value: facetValue!,
-    facet_option: facetOption!,
-    record_type: recordType,
+    value: facetValue!,
+    facetId: facetOption!,
+    note: "this is note",
   };
   
   try {
@@ -44,8 +45,11 @@ async function createFacetValue() {
       fn_name: 'create_facet_value',
       payload: facetValueEntry,
     });
-    dispatch('facet-value-created', { facetValueHash: record.signed_action.hashed.hash });
+    console.log('called')
+    console.log(record)
+    // dispatch('facet-value-created', { facetValueHash: record.signed_action.hashed.hash });
   } catch (e) {
+    console.log(e)
     errorSnackbar.labelText = `Error creating the facet value: ${e.data.data}`;
     errorSnackbar.show();
   }

@@ -1,6 +1,6 @@
 <script lang="ts">
 import { createEventDispatcher, getContext, onMount } from 'svelte';
-import type { AppAgentClient, Record, EntryHash, AgentPubKey, ActionHash, DnaHash } from '@holochain/client';
+import type { AppAgentClient, Record, EntryHash, AgentPubKey, ActionHash, DnaHash, Entry } from '@holochain/client';
 import { clientContext } from '../../contexts';
 import type { FacetOption } from './types';
 import '@material/mwc-button';
@@ -13,7 +13,7 @@ let client: AppAgentClient = (getContext(clientContext) as any).getClient();
 
 const dispatch = createEventDispatcher();
 
-export let facetGroup: ActionHash | undefined;
+export let facetGroup: EntryHash | undefined;
 
 
 let name: string = '';
@@ -56,15 +56,14 @@ async function createFacetOption() {
 </mwc-snackbar>
 <div style="display: flex; flex-direction: column">
   <span style="font-size: 18px">Create FacetOption</span>
-  {JSON.stringify(facetGroup)}
-  gh
+  <!-- {JSON.stringify(facetGroup)} -->
 
   <div style="margin-bottom: 16px">
-    <mwc-textarea outlined label="Facet Id" value={ name } on:input={e => { name = e.target.value;} } required></mwc-textarea>          
+    <mwc-textarea outlined label="Name" value={ name } on:input={e => { name = e.target.value;} } required></mwc-textarea>          
   </div>
             
   <div style="margin-bottom: 16px">
-    <mwc-textfield outlined label="Option" value={ note } on:input={e => { note = e.target.value; } } required></mwc-textfield>          
+    <mwc-textfield outlined label="Note" value={ note } on:input={e => { note = e.target.value; } } required></mwc-textfield>          
   </div>
             
 

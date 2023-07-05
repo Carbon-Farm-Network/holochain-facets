@@ -5,24 +5,26 @@ import type { Record, EntryHash, ActionHash, AgentPubKey, AppAgentClient, NewEnt
 import { clientContext } from '../../contexts';
 import FacetOptionDetail from './FacetOptionDetail.svelte';
 import type { HcFacetsSignal } from './types';
+    import CreateFacetValue from './CreateFacetValue.svelte';
+    import FacetValuesForFacetOption from './FacetValuesForFacetOption.svelte';
 
 export let facetGroupHash: ActionHash;
 
 let client: AppAgentClient = (getContext(clientContext) as any).getClient();
 
 let hashes: Array<ActionHash> | undefined;
+let all_options: Array<any> | undefined;
 
 let loading = true;
 let error: any = undefined;
-
-$: hashes, loading, error;
 
 onMount(async () => {
   if (facetGroupHash === undefined) {
     throw new Error(`The facetGroupHash input is required for the FacetOptionsForFacetGroup element`);
   }
-
+  console.log('hi')
   try {
+    console.log('hi 1')
     const records = await client.callZome({
       cap_secret: null,
       role_name: 'hc_facets',
@@ -30,11 +32,14 @@ onMount(async () => {
       fn_name: 'get_facet_options_for_facet_group',
       payload: facetGroupHash,
     });
-    hashes = records.map(r => r.signed_action.hashed.hash);
+    console.log('hi 2')
+    console.log(records)
+    all_options = records; //records.map(r => r.signed_action.hashed.hash);
   } catch (e) {
     error = e;
   }
   loading = false;
+  console.log(loading)
 
   client.on('signal', signal => {
     if (signal.zome_name !== 'hc_facets') return;
@@ -46,24 +51,26 @@ onMount(async () => {
   });
 });
 
+$: hashes, loading, error;
+
 </script>
 
-{hashes}
-
-{#if loading }
-<div style="display: flex; flex: 1; align-items: center; justify-content: center">
-  <mwc-circular-progress indeterminate></mwc-circular-progress>
-</div>
-{:else if error}
+<!-- {all_options} -->
+{#if error}
 <span>Error fetching facet options: {error.data.data}.</span>
-{:else if hashes.length === 0}
+{:else if !all_options || all_options.length === 0}
 <span>No facet options found for this facet group.</span>
 {:else}
 <div style="display: flex; flex-direction: column">
-  {#each hashes as hash}
-    <div style="margin-bottom: 8px;">
-      {hash}
+  {#each all_options as option}
+    <div style="margin-bottom: 8px;">\
+      ===================Facet Option=========================
+      {option.id}
+      {facetGroupHash}
+      <CreateFacetValue facetOption={option.id}></CreateFacetValue>
+      <FacetValuesForFacetOption facetOptionHash={option.id}></FacetValuesForFacetOption>
       <!-- <FacetOptionDetail facetOptionHash={hash}></FacetOptionDetail> -->
+    ======================================================
     </div>
   {/each}
 </div>

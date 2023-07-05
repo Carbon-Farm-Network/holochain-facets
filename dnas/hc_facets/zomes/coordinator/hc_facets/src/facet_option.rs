@@ -27,16 +27,18 @@ pub fn create_facet_option(facet_option: Facet) -> ExternResult<FacetOptionRespo
 
     // debug!("----------create_facet_option-3 ({:?})", record.clone());
 
+    let facet_option_entry_hash = hash_entry(facet_option.clone())?;
+
     if let Some(facet_group_hash) = facet_option.facet_group_id {
         // debug!("----------create_facet_option-4 ({:?})", facet_group_hash.clone());
         create_link(
             facet_group_hash.clone(),
-            facet_option_hash.clone(),
+            facet_option_entry_hash.clone(),
             LinkTypes::FacetGroupToFacetOptions,
             (),
         )?;
         create_link(
-            facet_option_hash.clone(),
+            facet_option_entry_hash.clone(),
             facet_group_hash.clone(),
             LinkTypes::FacetOptionToFacetGroups,
             (),
@@ -63,7 +65,10 @@ pub fn create_facet_option(facet_option: Facet) -> ExternResult<FacetOptionRespo
 pub fn get_facet_options_for_facet_group(
     facet_group_hash: EntryHash,
 ) -> ExternResult<Vec<FacetOptionResponseParams>> {
+    debug!("get_facet_groups_for_facet_option");
+    debug!("facet_option_hash: {:?}", facet_group_hash);
     let links = get_links(facet_group_hash, LinkTypes::FacetGroupToFacetOptions, None)?;
+    debug!("links: {:?}", links.clone());
     let get_input: Vec<GetInput> = links
         .into_iter()
         .map(|link| GetInput::new(
@@ -71,12 +76,14 @@ pub fn get_facet_options_for_facet_group(
             GetOptions::default(),
         ))
         .collect();
+    debug!("input: {:?}", get_input.clone());
     let records: Vec<Record> = HDK
         .with(|hdk| hdk.borrow().get(get_input))?
         .into_iter()
         .filter_map(|r| r)
         .collect();
     // Ok(records)
+    debug!("records: {:?}", records.clone());
 
     let mut output: Vec<FacetOptionResponseParams> = vec![];
     for item in records.iter() {
@@ -94,8 +101,11 @@ pub fn get_facet_options_for_facet_group(
             name: facet.name,
             note: facet.note,
             facet_group_id: facet.facet_group_id,
-        })
+        });
+        debug!("added to output: {:?}", output.clone());
     }
+
+    debug!("final output: {:?}", output.clone());
 
     Ok(output)
 }

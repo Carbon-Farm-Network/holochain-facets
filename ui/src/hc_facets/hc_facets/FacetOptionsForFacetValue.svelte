@@ -30,7 +30,8 @@ onMount(async () => {
       fn_name: 'get_facet_options_for_facet_value',
       payload: facetValueHash,
     });
-    hashes = records.map(r => r.signed_action.hashed.hash);
+    console.log(records)
+    // hashes = records.map(r => r.signed_action.hashed.hash);
   } catch (e) {
     error = e;
   }
@@ -60,7 +61,7 @@ onMount(async () => {
 <div style="display: flex; flex-direction: column">
   {#each hashes as hash}
     <div style="margin-bottom: 8px;">
-      <FacetOptionDetail facetOptionHash={hash}></FacetOptionDetail>
+      <!-- <FacetOptionDetail facetOptionHash={hash}></FacetOptionDetail> -->
     </div>
   {/each}
 </div>

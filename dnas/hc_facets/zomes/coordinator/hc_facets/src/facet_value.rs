@@ -7,41 +7,62 @@ pub struct FacetValueResponseParams {
     pub id: EntryHash,
     pub revision_id: ActionHash,
     pub value: String,
+    pub note: String,
     pub facet_id: EntryHash,
 }
 #[hdk_extern]
 pub fn create_facet_value(facet_value: FacetValue) -> ExternResult<FacetValueResponseParams> {
+    debug!("-----------------------");
+    debug!("input: {:?}", facet_value.clone());
     let facet_value_hash = create_entry(&EntryTypes::FacetValue(facet_value.clone()))?;
+    debug!("creation: {:?}", facet_value_hash.clone());
+    
     let record = get(facet_value_hash.clone(), GetOptions::default())?
         .ok_or(
             wasm_error!(
                 WasmErrorInner::Guest(String::from("Could not find the newly created FacetValue"))
             ),
         )?;
-    create_link(
-        facet_value.facet_id.clone(),
-        facet_value_hash.clone(),
-        LinkTypes::FacetOptionToFacetValues,
-        (),
-    )?;
-    create_link(
-        facet_value_hash.clone(),
-        facet_value.facet_id,
-        LinkTypes::FacetOptionToFacetValues,
-        (),
-    )?;
-    // Ok(record)
+    
+    debug!("record: {:?}", record.clone());
 
     let response: FacetValue = try_decode_entry(
         record.entry().as_option().unwrap().to_owned(),
     )?;
 
-    Ok(FacetValueResponseParams {
-        id: hash_entry(response.clone())?,
+    debug!("response: {:?}", response.clone());
+
+    let facet_value_entry_hash = hash_entry(response.clone())?;
+
+    debug!("entry_hash: {:?}", facet_value_entry_hash.clone());
+
+    create_link(
+        facet_value.facet_id.clone(),
+        facet_value_entry_hash.clone(),
+        LinkTypes::FacetOptionToFacetValues,
+        (),
+    )?;
+    create_link(
+        facet_value_entry_hash.clone(),
+        facet_value.facet_id,
+        LinkTypes::FacetValueToFacetOptions,
+        (),
+    )?;
+    // Ok(record)
+
+    debug!("links created");
+
+    let output = FacetValueResponseParams {
+        id: facet_value_entry_hash,
         revision_id: facet_value_hash,
         value: response.value,
+        note: response.note.unwrap(),
         facet_id: response.facet_id,
-    })
+    };
+
+    debug!("output: {:?}", output.clone());
+
+    Ok(output)
 }
 
 #[hdk_extern]
@@ -78,6 +99,7 @@ pub fn get_facet_values_for_facet_option(
             revision_id: item.signed_action.as_hash().to_owned(),
             value: fv.value,
             facet_id: fv.facet_id,
+            note: fv.note.unwrap(),
         })
     }
 

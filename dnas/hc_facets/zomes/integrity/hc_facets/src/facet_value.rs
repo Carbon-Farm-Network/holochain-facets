@@ -4,8 +4,8 @@ use hdi::prelude::*;
 #[serde(rename_all = "camelCase")]
 pub struct FacetValue {
     pub value: String,
-    pub facet_id: EntryHash,
     pub note: Option<String>,
+    pub facet_id: EntryHash,
 }
 pub fn validate_create_facet_value(
     _action: EntryCreationAction,
