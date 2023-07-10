@@ -37,6 +37,8 @@ async function createFacetValue() {
     note: "this is note",
   };
   
+  console.log(facetValueEntry)
+
   try {
     const record: Record = await client.callZome({
       cap_secret: null,

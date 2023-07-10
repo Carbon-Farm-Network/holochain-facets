@@ -32,7 +32,7 @@ onMount(async () => {
     });
     console.log(records)
     // hashes = records.map(r => r.signed_action.hashed.hash);
-    loading = false;
+    loading = false
   } catch (e) {
     error = e;
   }
@@ -49,7 +49,7 @@ onMount(async () => {
 });
 
 </script>
-
+<!-- 
 {#if loading }
 <div style="display: flex; flex: 1; align-items: center; justify-content: center">
   <mwc-circular-progress indeterminate></mwc-circular-progress>
@@ -66,4 +66,4 @@ onMount(async () => {
     </div>
   {/each}
 </div>
-{/if}
+{/if} -->
