@@ -191,9 +191,12 @@
     "holochain_2": {
       "flake": false,
       "locked": {
-        "narHash": "sha256-d6xi4mKdjkX2JFicDIv5niSzpyI0m/Hnm8GGAIU04kY=",
-        "type": "file",
-        "url": "file:///dev/null"
+        "lastModified": 1686257124,
+        "narHash": "sha256-SvXGHOr96ob/NfQCeVJ2J4LWc83qkZn+/pnE9qVNB+I=",
+        "owner": "holochain",
+        "repo": "holochain",
+        "rev": "db5b8b27da3bf296958c3bf54ac3950dc60a39c8",
+        "type": "github"
       },
       "original": {
         "type": "file",
@@ -450,11 +453,11 @@
       },
       "locked": {
         "dir": "versions/0_1",
-        "lastModified": 1688496000,
-        "narHash": "sha256-iNAfXha8MisjVuAUkkSSohab7CMxUDaYYkuRAE5oW5Y=",
+        "lastModified": 1688970218,
+        "narHash": "sha256-U3Ywk23zskW5BK8CYyS4lFeP3nG/CPNvMczbIkUvcNI=",
         "owner": "holochain",
         "repo": "holochain",
-        "rev": "038c691670578d60a6e263c6fcd1382261572327",
+        "rev": "5f5d6c857c49d644fa5c0272854ad3c03c4b7d3b",
         "type": "github"
       },
       "original": {

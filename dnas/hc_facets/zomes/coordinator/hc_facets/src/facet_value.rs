@@ -10,13 +10,7 @@ pub struct FacetValueResponseParams {
     pub note: String,
     pub facet_id: EntryHash,
 }
-pub struct FacetValueResponseParams2 {
-    pub id: EntryHash,
-    pub revision_id: ActionHash,
-    pub value: String,
-    pub note: String,
-    pub facet_id: EntryHash,
-}
+
 #[hdk_extern]
 pub fn create_facet_value(facet_value: FacetValue) -> ExternResult<FacetValueResponseParams> {
     debug!("-----------------------");

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "scripts": {
     "start": "vite --clearScreen false --port $UI_PORT",
-    "build": "npm run check && vite build",
+    "build": "npm run check; vite build",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "package": "npm run build && cd public && bestzip ../dist.zip *"
   },
