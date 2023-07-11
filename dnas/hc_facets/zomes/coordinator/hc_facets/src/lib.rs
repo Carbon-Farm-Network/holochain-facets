@@ -6,6 +6,7 @@ pub mod facet_option;
 pub mod facet_group;
 use hdk::prelude::*;
 use hc_facets_integrity::*;
+
 pub(crate) fn try_decode_entry<T>(entry: Entry) -> ExternResult<T>
 where
     SerializedBytes: TryInto<T, Error = SerializedBytesError>,
@@ -21,6 +22,15 @@ where
         _ => Err(wasm_error!(WasmErrorInner::Guest("Unable to deserialize".to_string()))),
     }
 }
+
+pub fn try_entry_from_record<'a>(record: &'a Record) -> ExternResult<&'a Entry> {
+    record.entry().as_option().ok_or_else(|| {
+        wasm_error!(
+            WasmErrorInner::Guest("Could not get entry from record".to_string())
+        )
+    })
+}
+
 #[hdk_extern]
 pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
     Ok(InitCallbackResult::Pass)

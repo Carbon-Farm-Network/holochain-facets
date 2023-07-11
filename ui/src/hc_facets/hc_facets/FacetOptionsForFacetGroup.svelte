@@ -30,7 +30,7 @@ onMount(async () => {
       role_name: 'hc_facets',
       zome_name: 'hc_facets',
       fn_name: 'get_facet_options_for_facet_group',
-      payload: facetGroupHash,
+      payload: {facet_group_hash: facetGroupHash},
     });
     console.log('hi 2')
     console.log(records)

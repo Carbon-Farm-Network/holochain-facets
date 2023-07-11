@@ -1,6 +1,7 @@
 use hdk::prelude::*;
 use hc_facets_integrity::*;
 use crate::try_decode_entry;
+use crate::try_entry_from_record;
 #[derive(Clone, Serialize, Deserialize, SerializedBytes, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct FacetValueResponseParams {
@@ -66,9 +67,14 @@ pub fn create_facet_value(facet_value: FacetValue) -> ExternResult<FacetValueRes
     Ok(output)
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GetFacetValueInput {
+    pub facet_option_hash: EntryHash,
+}
+
 #[hdk_extern]
 pub fn get_facet_values_for_facet_option(
-    facet_option_hash: EntryHash,
+    GetFacetValueInput { facet_option_hash }: GetFacetValueInput
 ) -> ExternResult<Vec<FacetValueResponseParams>> {
     let links = get_links(facet_option_hash, LinkTypes::FacetOptionToFacetValues, None)?;
     let get_input: Vec<GetInput> = links
@@ -87,21 +93,8 @@ pub fn get_facet_values_for_facet_option(
 
     let mut output: Vec<FacetValueResponseParams> = vec![];
     for item in records.iter() {
-        emit_signal(item.clone())?;
-        let fv: FacetValue = item
-          .entry()
-          .to_app_option()
-          .map_err(|err| wasm_error!(err))?
-          .ok_or(wasm_error!(WasmErrorInner::Guest(
-              "Could not deserialize record to Facet.".into(),
-          )))?;
-        output.push(FacetValueResponseParams {
-            id: hash_entry(fv.clone())?,
-            revision_id: item.signed_action.as_hash().to_owned(),
-            value: fv.value,
-            facet_id: fv.facet_id,
-            note: fv.note.unwrap(),
-        })
+        let entry = try_entry_from_record(&item)?;
+        output.push(try_decode_entry(entry.to_owned())?);
     }
 
     Ok(output)
@@ -110,11 +103,11 @@ pub fn get_facet_values_for_facet_option(
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AddFacetValueForFacetOptionInput {
     pub facet_value_hash: EntryHash,
-    pub identifier_hash: String,
+    pub identifier: String,
 }
 #[hdk_extern]
-pub fn use_facet_value(input: AddFacetValueForFacetOptionInput) -> ExternResult<()> {
-    let path = Path::from(format!("identifier/{}", input.identifier_hash.to_string()));
+pub fn use_facet_value(input: AddFacetValueForFacetOptionInput) -> ExternResult<bool> {
+    let path = Path::from(format!("identifier/{}", input.identifier.to_string()));
     let typed_path = path.typed(LinkTypes::IdentifierToFacetValue)?;
     typed_path.ensure()?;
     create_link(
@@ -123,11 +116,18 @@ pub fn use_facet_value(input: AddFacetValueForFacetOptionInput) -> ExternResult<
         LinkTypes::IdentifierToFacetValue,
         (),
     )?;
-    Ok(())
+    Ok(true)
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct RetrieveValueForFacetOptionInput {
+    pub identifier: String,
 }
 #[hdk_extern]
-pub fn retrieve_facet_values(identifier_hash: String) -> ExternResult<Vec<Record>> {
-    let path = Path::from(format!("identifier/{}", identifier_hash.to_string()));
+pub fn retrieve_facet_values(
+    RetrieveValueForFacetOptionInput { identifier }: RetrieveValueForFacetOptionInput
+) -> ExternResult<Vec<FacetValueResponseParams>> {
+    let path = Path::from(format!("identifier/{}", identifier.to_string()));
     let typed_path = path.typed(LinkTypes::IdentifierToFacetValue)?;
     let links = get_links(
         typed_path.path_entry_hash()?,
@@ -148,8 +148,16 @@ pub fn retrieve_facet_values(identifier_hash: String) -> ExternResult<Vec<Record
         .collect();
     let records = HDK.with(|hdk| hdk.borrow().get(get_input))?;
     let records: Vec<Record> = records.into_iter().filter_map(|r| r).collect();
-    Ok(records)
+
+    let mut output: Vec<FacetValueResponseParams> = vec![];
+    for item in records.iter() {    
+        let entry = try_entry_from_record(&item)?;
+        output.push(try_decode_entry(entry.to_owned())?);
+    }
+
+    Ok(output)
 }
+
 #[hdk_extern]
 pub fn get_facet_value(
     original_facet_value_hash: EntryHash,

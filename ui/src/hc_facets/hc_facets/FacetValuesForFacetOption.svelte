@@ -28,7 +28,7 @@ onMount(async () => {
       role_name: 'hc_facets',
       zome_name: 'hc_facets',
       fn_name: 'get_facet_values_for_facet_option',
-      payload: facetOptionHash,
+      payload: {facet_option_hash: facetOptionHash},
     });
     console.log(records)
     // hashes = records.map(r => r.signed_action.hashed.hash);
