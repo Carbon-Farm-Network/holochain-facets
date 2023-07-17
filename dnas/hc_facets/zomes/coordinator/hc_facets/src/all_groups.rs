@@ -68,3 +68,55 @@ pub fn get_facet_groups(_: ()) -> ExternResult<Vec<FacetGroupResponseParams>> {
 
     Ok(output)
 }
+
+#[hdk_extern]
+pub fn get_facet_groups_for_facet_option(
+    facet_option_hash: EntryHash,
+) -> ExternResult<Vec<FacetGroupResponseParams>> {
+    let links = get_links(facet_option_hash, LinkTypes::FacetOptionToFacetGroups, None)?;
+
+    // let get_input: Vec<GetInput> = links
+    //     .into_iter()
+    //     .map(|link| GetInput::new(
+    //         ActionHash::from(link.target).into(),
+    //         GetOptions::default(),
+    //     ))
+    //     .collect();
+
+    let get_input: Vec<GetInput> = links
+        .into_iter()
+        .map(|link| GetInput::new(
+            EntryHash::from(link.target).into(),
+            GetOptions::default(),
+        ))
+        .collect();
+    let records: Vec<Record> = HDK
+        .with(|hdk| hdk.borrow().get(get_input))?
+        .into_iter()
+        .filter_map(|r| r)
+        .collect();
+
+    // let records = HDK.with(|hdk| hdk.borrow().get(get_input))?;
+    // let records: Vec<Record> = records.into_iter().filter_map(|r| r).collect();
+
+    let mut output: Vec<FacetGroupResponseParams> = vec![];
+    for item in records.iter() {
+        emit_signal(item.clone())?;
+        let group: FacetGroup = item
+          .entry()
+          .to_app_option()
+          .map_err(|err| wasm_error!(err))?
+          .ok_or(wasm_error!(WasmErrorInner::Guest(
+              "Could not deserialize record to FacetGroup.".into(),
+          )))?;
+        output.push(FacetGroupResponseParams {
+            id: hash_entry(group.clone())?,
+            revision_id: item.signed_action.as_hash().to_owned(),
+            name: group.name,
+            note: group.note,
+        })
+    }
+
+    Ok(output)
+
+}

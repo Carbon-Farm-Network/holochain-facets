@@ -5,6 +5,7 @@ import type { Record, EntryHash, ActionHash, AgentPubKey, AppAgentClient, NewEnt
 import { clientContext } from '../../contexts';
 import FacetValueDetail from './FacetValueDetail.svelte';
 import type { HcFacetsSignal } from './types';
+    import FacetOptionsForFacetValue from './FacetOptionsForFacetValue.svelte';
 
 export let facetOptionHash: EntryHash;
 
@@ -31,7 +32,7 @@ onMount(async () => {
       payload: {facet_option_hash: facetOptionHash},
     });
     console.log(records)
-    // hashes = records.map(r => r.signed_action.hashed.hash);
+    hashes = records.map(r => r);
     loading = false
   } catch (e) {
     error = e;
@@ -49,21 +50,24 @@ onMount(async () => {
 });
 
 </script>
-<!-- 
-{#if loading }
+hi
+
+{#if loading}
 <div style="display: flex; flex: 1; align-items: center; justify-content: center">
   <mwc-circular-progress indeterminate></mwc-circular-progress>
 </div>
 {:else if error}
-<span>Error fetching facet values: {error.data.data}.</span>
+<span>Error fetching facet values: {error}.</span>
 {:else if hashes.length === 0}
 <span>No facet values found for this facet option.</span>
 {:else}
 <div style="display: flex; flex-direction: column">
   {#each hashes as hash}
     <div style="margin-bottom: 8px;">
-      <FacetValueDetail facetValueHash={hash}></FacetValueDetail>
+      {hash.value}
+      <FacetOptionsForFacetValue facetValueHash={hash.id}></FacetOptionsForFacetValue>
+      <!-- <FacetValueDetail facetValueHash={hash}></FacetValueDetail> -->
     </div>
   {/each}
 </div>
-{/if} -->
+{/if}

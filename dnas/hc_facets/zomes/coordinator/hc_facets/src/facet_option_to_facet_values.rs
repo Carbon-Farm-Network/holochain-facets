@@ -42,25 +42,25 @@ pub fn add_facet_value_for_facet_option(
 //         .collect();
 //     Ok(records)
 // }
-#[hdk_extern]
-pub fn get_facet_options_for_facet_value(
-    facet_value_hash: EntryHash,
-) -> ExternResult<Vec<Record>> {
-    let links = get_links(facet_value_hash, LinkTypes::FacetValueToFacetOptions, None)?;
-    let get_input: Vec<GetInput> = links
-        .into_iter()
-        .map(|link| GetInput::new(
-            EntryHash::from(link.target).into(),
-            GetOptions::default(),
-        ))
-        .collect();
-    let records: Vec<Record> = HDK
-        .with(|hdk| hdk.borrow().get(get_input))?
-        .into_iter()
-        .filter_map(|r| r)
-        .collect();
-    Ok(records)
-}
+// #[hdk_extern]
+// pub fn get_facet_options_for_facet_value(
+//     facet_value_hash: EntryHash,
+// ) -> ExternResult<Vec<Record>> {
+//     let links = get_links(facet_value_hash, LinkTypes::FacetValueToFacetOptions, None)?;
+//     let get_input: Vec<GetInput> = links
+//         .into_iter()
+//         .map(|link| GetInput::new(
+//             EntryHash::from(link.target).into(),
+//             GetOptions::default(),
+//         ))
+//         .collect();
+//     let records: Vec<Record> = HDK
+//         .with(|hdk| hdk.borrow().get(get_input))?
+//         .into_iter()
+//         .filter_map(|r| r)
+//         .collect();
+//     Ok(records)
+// }
 #[derive(Serialize, Deserialize, Debug)]
 pub struct RemoveFacetValueForFacetOptionInput {
     pub base_facet_option_hash: EntryHash,

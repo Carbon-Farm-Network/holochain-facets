@@ -91,10 +91,30 @@ pub fn get_facet_values_for_facet_option(
         .collect();
     // Ok(records)
 
+    // let mut output: Vec<FacetValueResponseParams> = vec![];
+    // for item in records.iter() {
+    //     let entry = try_entry_from_record(&item)?;
+    //     // output.push(try_decode_entry(entry.to_owned())?);
+    //     // let fvL  = try_decode_entry(entry.to_owned())?;
+    // }
+
     let mut output: Vec<FacetValueResponseParams> = vec![];
     for item in records.iter() {
-        let entry = try_entry_from_record(&item)?;
-        output.push(try_decode_entry(entry.to_owned())?);
+        emit_signal(item.clone())?;
+        let fv: FacetValue = item
+          .entry()
+          .to_app_option()
+          .map_err(|err| wasm_error!(err))?
+          .ok_or(wasm_error!(WasmErrorInner::Guest(
+              "Could not deserialize record to Facet.".into(),
+          )))?;
+        output.push(FacetValueResponseParams {
+            id: hash_entry(fv.clone())?,
+            revision_id: item.signed_action.as_hash().to_owned(),
+            value: fv.value,
+            facet_id: fv.facet_id,
+            note: fv.note.unwrap(),
+        })
     }
 
     Ok(output)
@@ -102,17 +122,20 @@ pub fn get_facet_values_for_facet_option(
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AddFacetValueForFacetOptionInput {
-    pub facet_value_hash: EntryHash,
+    pub facetValueId: EntryHash,
     pub identifier: String,
 }
 #[hdk_extern]
 pub fn use_facet_value(input: AddFacetValueForFacetOptionInput) -> ExternResult<bool> {
+    debug!("input: {:?}", input);
     let path = Path::from(format!("identifier/{}", input.identifier.to_string()));
+    debug!("path: {:?}", path);
     let typed_path = path.typed(LinkTypes::IdentifierToFacetValue)?;
+    debug!("typed path: {:?}", typed_path);
     typed_path.ensure()?;
     create_link(
         typed_path.path_entry_hash()?,
-        input.facet_value_hash,
+        input.facetValueId,
         LinkTypes::IdentifierToFacetValue,
         (),
     )?;
@@ -149,10 +172,31 @@ pub fn retrieve_facet_values(
     let records = HDK.with(|hdk| hdk.borrow().get(get_input))?;
     let records: Vec<Record> = records.into_iter().filter_map(|r| r).collect();
 
+    // let mut output: Vec<FacetValueResponseParams> = vec![];
+    // for item in records.iter() {    
+    //     let entry = try_entry_from_record(&item)?;
+    //     output.push(try_decode_entry(entry.to_owned())?);
+    // }
+
+    // Ok(output)
+
     let mut output: Vec<FacetValueResponseParams> = vec![];
-    for item in records.iter() {    
-        let entry = try_entry_from_record(&item)?;
-        output.push(try_decode_entry(entry.to_owned())?);
+    for item in records.iter() {
+        emit_signal(item.clone())?;
+        let fv: FacetValue = item
+          .entry()
+          .to_app_option()
+          .map_err(|err| wasm_error!(err))?
+          .ok_or(wasm_error!(WasmErrorInner::Guest(
+              "Could not deserialize record to Facet.".into(),
+          )))?;
+        output.push(FacetValueResponseParams {
+            id: hash_entry(fv.clone())?,
+            revision_id: item.signed_action.as_hash().to_owned(),
+            value: fv.value,
+            facet_id: fv.facet_id,
+            note: fv.note.unwrap(),
+        })
     }
 
     Ok(output)

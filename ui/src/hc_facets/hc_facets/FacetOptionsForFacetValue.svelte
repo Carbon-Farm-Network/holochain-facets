@@ -5,6 +5,7 @@ import type { Record, ActionHash, EntryHash, AgentPubKey, AppAgentClient, NewEnt
 import { clientContext } from '../../contexts';
 import FacetOptionDetail from './FacetOptionDetail.svelte';
 import type { HcFacetsSignal } from './types';
+    import FacetGroupsForFacetOption from './FacetGroupsForFacetOption.svelte';
 
 export let facetValueHash: ActionHash;
 
@@ -31,7 +32,7 @@ onMount(async () => {
       payload: facetValueHash,
     });
     console.log(records)
-    // hashes = records.map(r => r.signed_action.hashed.hash);
+    hashes = records.map(r => r);
   } catch (e) {
     error = e;
   }
@@ -61,6 +62,8 @@ onMount(async () => {
 <div style="display: flex; flex-direction: column">
   {#each hashes as hash}
     <div style="margin-bottom: 8px;">
+      {hash.name}
+      <FacetGroupsForFacetOption facetOptionHash={hash.id}></FacetGroupsForFacetOption>
       <!-- <FacetOptionDetail facetOptionHash={hash}></FacetOptionDetail> -->
     </div>
   {/each}

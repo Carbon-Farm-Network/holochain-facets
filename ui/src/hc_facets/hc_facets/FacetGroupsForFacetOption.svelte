@@ -30,7 +30,7 @@ onMount(async () => {
       fn_name: 'get_facet_groups_for_facet_option',
       payload: facetOptionHash,
     });
-    hashes = records.map(r => r.signed_action.hashed.hash);
+    hashes = records.map(r => r.name);
   } catch (e) {
     error = e;
   }
@@ -60,7 +60,8 @@ onMount(async () => {
 <div style="display: flex; flex-direction: column">
   {#each hashes as hash}
     <div style="margin-bottom: 8px;">
-      <FacetGroupDetail facetGroupHash={hash}></FacetGroupDetail>
+      {hash}
+      <!-- <FacetGroupDetail facetGroupHash={hash}></FacetGroupDetail> -->
     </div>
   {/each}
 </div>

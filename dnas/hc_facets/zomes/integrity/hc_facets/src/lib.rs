@@ -189,7 +189,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
         } => {
             match link_type {
                 LinkTypes::IdentifierToFacetValue => {
-                    validate_create_link_facet_group_updates(
+                    validate_create_link_identifier_to_facet_value(
                         action,
                         base_address,
                         target_address,
@@ -272,7 +272,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
         } => {
             match link_type {
                 LinkTypes::IdentifierToFacetValue => {
-                    validate_delete_link_facet_group_updates(
+                    validate_delete_link_identifier_to_facet_value(
                         action,
                         original_action,
                         base_address,
@@ -578,7 +578,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 } => {
                     match link_type {
                         LinkTypes::IdentifierToFacetValue => {
-                            validate_create_link_facet_group_updates(
+                            validate_create_link_identifier_to_facet_value(
                                 action,
                                 base_address,
                                 target_address,
@@ -675,7 +675,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                     };
                     match link_type {
                         LinkTypes::IdentifierToFacetValue => {
-                            validate_delete_link_facet_group_updates(
+                            validate_delete_link_identifier_to_facet_value(
                                 action,
                                 create_link.clone(),
                                 base_address,
