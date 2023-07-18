@@ -69,19 +69,16 @@ pub fn get_facet_groups(_: ()) -> ExternResult<Vec<FacetGroupResponseParams>> {
     Ok(output)
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GetGroupForFacetInput {
+    pub facet_option_hash: EntryHash,
+}
+
 #[hdk_extern]
 pub fn get_facet_groups_for_facet_option(
-    facet_option_hash: EntryHash,
+GetGroupForFacetInput { facet_option_hash }: GetGroupForFacetInput
 ) -> ExternResult<Vec<FacetGroupResponseParams>> {
     let links = get_links(facet_option_hash, LinkTypes::FacetOptionToFacetGroups, None)?;
-
-    // let get_input: Vec<GetInput> = links
-    //     .into_iter()
-    //     .map(|link| GetInput::new(
-    //         ActionHash::from(link.target).into(),
-    //         GetOptions::default(),
-    //     ))
-    //     .collect();
 
     let get_input: Vec<GetInput> = links
         .into_iter()

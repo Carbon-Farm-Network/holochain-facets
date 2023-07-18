@@ -115,44 +115,38 @@ GetFacetOptionInput { facet_group_hash }: GetFacetOptionInput
     Ok(output)
 }
 
-#[hdk_extern]
-pub fn get_facet_options_for_facet_value(
-    facet_value_hash: EntryHash,
-) -> ExternResult<Vec<FacetOptionResponseParams>> {
-    let links = get_links(facet_value_hash, LinkTypes::FacetValueToFacetOptions, None)?;
-    let get_input: Vec<GetInput> = links
-        .into_iter()
-        .map(|link| GetInput::new(
-            EntryHash::from(link.target).into(),
-            GetOptions::default(),
-        ))
-        .collect();
-    let records: Vec<Record> = HDK
-        .with(|hdk| hdk.borrow().get(get_input))?
-        .into_iter()
-        .filter_map(|r| r)
-        .collect();
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GetFacetForValueInput {
+    pub facet_value_hash: EntryHash,
+}
 
-    let mut output: Vec<FacetOptionResponseParams> = vec![];
-    for item in records.iter() {
-        emit_signal(item.clone())?;
-        let facet: Facet = item
-            .entry()
-            .to_app_option()
-            .map_err(|err| wasm_error!(err))?
-            .ok_or(wasm_error!(WasmErrorInner::Guest(
-                "Could not deserialize record to Facet.".into(),
-            )))?;
-        output.push(FacetOptionResponseParams {
-            id: hash_entry(facet.clone())?,
-            revision_id: item.signed_action.as_hash().to_owned(),
-            name: facet.name,
-            note: facet.note,
-            facet_group_id: facet.facet_group_id,
-        });
-    }
-        
-    Ok(output)
+#[hdk_extern]
+pub fn get_facet_option_for_facet_value(
+    GetFacetForValueInput { facet_value_hash }: GetFacetForValueInput
+) -> ExternResult<FacetOptionResponseParams> {
+    let mut links = get_links(facet_value_hash, LinkTypes::FacetValueToFacetOptions, None)?;
+
+    let link = links.pop().ok_or(wasm_error!("Could not get facet option."))?;
+
+    let record = get::<EntryHash>(
+        EntryHash::from(link.target).into(),
+        GetOptions::default(),
+    )?.ok_or(wasm_error!("Could not get facet option."))?;
+
+    let facet: Facet = record
+        .entry()
+        .to_app_option()
+        .map_err(|err| wasm_error!(err))?
+        .ok_or(wasm_error!(WasmErrorInner::Guest(
+            "Could not deserialize record to Facet.".into(),
+        )))?;
+    Ok(FacetOptionResponseParams {
+        id: hash_entry(facet.clone())?,
+        revision_id: record.signed_action.as_hash().to_owned(),
+        name: facet.name,
+        note: facet.note,
+        facet_group_id: facet.facet_group_id,
+    })
 }
 
 #[hdk_extern]
