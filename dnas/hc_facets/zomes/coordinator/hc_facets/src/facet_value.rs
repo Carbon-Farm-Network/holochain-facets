@@ -133,12 +133,40 @@ pub fn use_facet_value(input: AddFacetValueForFacetOptionInput) -> ExternResult<
     let typed_path = path.typed(LinkTypes::IdentifierToFacetValue)?;
     debug!("typed path: {:?}", typed_path);
     typed_path.ensure()?;
+    let links = get_links(
+        typed_path.path_entry_hash()?,
+        LinkTypes::IdentifierToFacetValue,
+        None,
+    )?;
+    for link in links {
+        if link.target == input.facetValueId.clone().into() {
+            delete_link(link.create_link_hash)?;
+        }
+    }
     create_link(
         typed_path.path_entry_hash()?,
         input.facetValueId,
         LinkTypes::IdentifierToFacetValue,
         (),
     )?;
+    Ok(true)
+}
+
+#[hdk_extern]
+pub fn unlink_facet_value(input: AddFacetValueForFacetOptionInput) -> ExternResult<bool> {
+    let path = Path::from(format!("identifier/{}", input.identifier.to_string()));
+    let typed_path = path.typed(LinkTypes::IdentifierToFacetValue)?;
+    typed_path.ensure()?;
+    let links = get_links(
+        typed_path.path_entry_hash()?,
+        LinkTypes::IdentifierToFacetValue,
+        None,
+    )?;
+    for link in links {
+        if link.target == input.facetValueId.clone().into() {
+            delete_link(link.create_link_hash)?;
+        }
+    }
     Ok(true)
 }
 
