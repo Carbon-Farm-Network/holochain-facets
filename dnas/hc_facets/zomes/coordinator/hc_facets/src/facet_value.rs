@@ -274,9 +274,16 @@ pub fn update_facet_value(input: UpdateFacetValueInput) -> ExternResult<Record> 
         )?;
     Ok(record)
 }
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct DeleteFacetValueInput {
+    pub revision_id: ActionHash,
+}
 #[hdk_extern]
 pub fn delete_facet_value(
-    original_facet_value_hash: ActionHash,
-) -> ExternResult<ActionHash> {
-    delete_entry(original_facet_value_hash)
+    input: DeleteFacetValueInput,
+) -> ExternResult<bool> {
+    debug!("input: {:?}", input.clone());
+    delete_entry(input.revision_id);
+    Ok(true)
 }

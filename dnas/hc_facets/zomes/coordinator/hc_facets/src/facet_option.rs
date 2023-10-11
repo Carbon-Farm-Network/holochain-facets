@@ -193,9 +193,15 @@ pub fn update_facet_option(input: UpdateFacetOptionInput) -> ExternResult<Record
         )?;
     Ok(record)
 }
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct DeleteFacetOptionInput {
+    pub revision_id: ActionHash,
+}
 #[hdk_extern]
 pub fn delete_facet_option(
-    original_facet_option_hash: ActionHash,
-) -> ExternResult<ActionHash> {
-    delete_entry(original_facet_option_hash)
+    input: DeleteFacetOptionInput,
+) -> ExternResult<bool> {
+    delete_entry(input.revision_id);
+    Ok(true)
 }
