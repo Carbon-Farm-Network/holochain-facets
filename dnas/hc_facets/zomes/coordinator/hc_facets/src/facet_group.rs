@@ -92,7 +92,7 @@ pub fn get_facet_group(
         .into_iter()
         .max_by(|link_a, link_b| link_a.timestamp.cmp(&link_b.timestamp));
     let latest_facet_group_hash = match latest_link {
-        Some(link) => EntryHash::from(link.target.clone()),
+        Some(link) => EntryHash::try_from(link.target.clone()).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected entryhash".into()))).unwrap().into(),
         None => original_facet_group_hash.clone(),
     };
     get(latest_facet_group_hash, GetOptions::default())

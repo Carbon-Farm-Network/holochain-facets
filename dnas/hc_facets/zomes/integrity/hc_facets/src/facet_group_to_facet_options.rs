@@ -5,10 +5,10 @@ pub fn validate_create_link_facet_group_to_facet_options(
     target_address: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    let entry_hash = EntryHash::from(base_address);
+    let entry_hash = EntryHash::try_from(base_address).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected entryhash".into()))).unwrap().into();
     let entry = must_get_entry(entry_hash)?.content;
     let _facet_group = crate::FacetGroup::try_from(entry)?;
-    let entry_hash = EntryHash::from(target_address);
+    let entry_hash = EntryHash::try_from(target_address).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected entryhash".into()))).unwrap().into();
     let entry = must_get_entry(entry_hash)?.content;
     let _facet = crate::Facet::try_from(entry)?;
     Ok(ValidateCallbackResult::Valid)
@@ -29,11 +29,11 @@ pub fn validate_create_link_facet_option_to_facet_groups(
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
     // Check the entry type for the given entry hash
-    let entry_hash = EntryHash::from(base_address);
+    let entry_hash = EntryHash::try_from(base_address).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected entryhash".into()))).unwrap().into();
     let entry = must_get_entry(entry_hash)?.content;
     let _facet = crate::Facet::try_from(entry)?;
     // Check the entry type for the given entry hash
-    let entry_hash = EntryHash::from(target_address);
+    let entry_hash = EntryHash::try_from(target_address).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected entryhash".into()))).unwrap().into();
     let entry = must_get_entry(entry_hash)?.content;
     let _facet_group = crate::FacetGroup::try_from(entry)?;
     // TODO: add the appropriate validation rules

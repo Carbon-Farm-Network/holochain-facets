@@ -34,7 +34,7 @@ pub fn validate_create_link_facet_value_updates(
     target_address: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    let action_hash = ActionHash::from(base_address);
+    let action_hash = ActionHash::try_from(base_address).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected actionhash".into()))).unwrap().into();
     let record = must_get_valid_record(action_hash)?;
     let _facet_value: crate::FacetValue = record
         .entry()
@@ -45,7 +45,7 @@ pub fn validate_create_link_facet_value_updates(
                 WasmErrorInner::Guest(String::from("Linked action must reference an entry"))
             ),
         )?;
-    let action_hash = ActionHash::from(target_address);
+    let action_hash = ActionHash::try_from(target_address).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected actionhash".into()))).unwrap().into();
     let record = must_get_valid_record(action_hash)?;
     let _facet_value: crate::FacetValue = record
         .entry()

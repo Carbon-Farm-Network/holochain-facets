@@ -5,10 +5,10 @@ pub fn validate_create_link_facet_option_to_facet_values(
     target_address: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    let entry_hash = EntryHash::from(base_address);
+    let entry_hash = EntryHash::try_from(base_address).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected entryhash".into()))).unwrap().into();
     let entry = must_get_entry(entry_hash)?.content;
     let _facet = crate::Facet::try_from(entry)?;
-    let entry_hash = EntryHash::from(target_address);
+    let entry_hash = EntryHash::try_from(target_address).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected entryhash".into()))).unwrap().into();
     let entry = must_get_entry(entry_hash)?.content;
     let _facet_value = crate::FacetValue::try_from(entry)?;
     Ok(ValidateCallbackResult::Valid)
@@ -20,7 +20,7 @@ pub fn validate_create_link_identifier_to_facet_value(
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
     debug!("target {:?}", target_address);
-    let entry_hash = EntryHash::from(target_address);
+    let entry_hash: EntryHash = EntryHash::try_from(target_address).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected entryhash".into()))).unwrap().into();
     debug!("entry_hash {:?}", entry_hash);
     // let entry = must_get_entry(entry_hash)?.content;
     // debug!("entry {:?}", entry);
@@ -53,11 +53,11 @@ pub fn validate_create_link_facet_value_to_facet_options(
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
     // Check the entry type for the given entry hash
-    let entry_hash = EntryHash::from(base_address);
+    let entry_hash = EntryHash::try_from(base_address).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected entryhash".into()))).unwrap().into();
     let entry = must_get_entry(entry_hash)?.content;
     let _facet_value = crate::FacetValue::try_from(entry)?;
     // Check the entry type for the given entry hash
-    let entry_hash = EntryHash::from(target_address);
+    let entry_hash = EntryHash::try_from(target_address).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected entryhash".into()))).unwrap().into();
     let entry = must_get_entry(entry_hash)?.content;
     let _facet = crate::Facet::try_from(entry)?;
     // TODO: add the appropriate validation rules

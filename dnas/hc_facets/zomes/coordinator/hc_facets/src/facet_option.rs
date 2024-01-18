@@ -77,7 +77,7 @@ GetFacetOptionInput { facet_group_hash }: GetFacetOptionInput
     let get_input: Vec<GetInput> = links
         .into_iter()
         .map(|link| GetInput::new(
-            EntryHash::from(link.target).into(),
+            EntryHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected entryhash".into()))).unwrap().into(),
             GetOptions::default(),
         ))
         .collect();
@@ -129,7 +129,7 @@ pub fn get_facet_option_for_facet_value(
     let link = links.pop().ok_or(wasm_error!("Could not get facet option."))?;
 
     let record = get::<EntryHash>(
-        EntryHash::from(link.target).into(),
+        EntryHash::try_from(link.target.clone()).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected entryhash".into()))).unwrap().into(),
         GetOptions::default(),
     )?.ok_or(wasm_error!("Could not get facet option."))?;
 
@@ -162,7 +162,7 @@ pub fn get_facet_option(
         .into_iter()
         .max_by(|link_a, link_b| link_a.timestamp.cmp(&link_b.timestamp));
     let latest_facet_option_hash = match latest_link {
-        Some(link) => EntryHash::from(link.target.clone()),
+        Some(link) => EntryHash::try_from(link.target.clone()).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected entryhash".into()))).unwrap().into(),
         None => original_facet_option_hash.clone(),
     };
     get(latest_facet_option_hash, GetOptions::default())

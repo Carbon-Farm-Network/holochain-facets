@@ -96,7 +96,7 @@ pub fn remove_facet_option_for_facet_group(
         None,
     )?;
     for link in links {
-        if EntryHash::from(link.target.clone()).eq(&input.target_facet_option_hash) {
+        if EntryHash::try_from(link.target.clone()).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected entryhash".into()))).unwrap().eq(&input.target_facet_option_hash) {
             delete_link(link.create_link_hash)?;
         }
     }
@@ -106,7 +106,7 @@ pub fn remove_facet_option_for_facet_group(
         None,
     )?;
     for link in links {
-        if EntryHash::from(link.target.clone()).eq(&input.base_facet_group_hash) {
+        if EntryHash::try_from(link.target.clone()).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected entryhash".into()))).unwrap().eq(&input.base_facet_group_hash) {
             delete_link(link.create_link_hash)?;
         }
     }

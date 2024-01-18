@@ -80,7 +80,7 @@ pub fn get_facet_values_for_facet_option(
     let get_input: Vec<GetInput> = links
         .into_iter()
         .map(|link| GetInput::new(
-            EntryHash::from(link.target).into(),
+            EntryHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected entryhash".into()))).unwrap().into(),
             GetOptions::default(),
         ))
         .collect();
@@ -243,7 +243,7 @@ pub fn get_facet_value(
         .into_iter()
         .max_by(|link_a, link_b| link_a.timestamp.cmp(&link_b.timestamp));
     let latest_facet_value_hash = match latest_link {
-        Some(link) => EntryHash::from(link.target.clone()),
+        Some(link) => EntryHash::try_from(link.target.clone()).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected entryhash".into()))).unwrap().into(),
         None => original_facet_value_hash.clone(),
     };
     get(latest_facet_value_hash, GetOptions::default())

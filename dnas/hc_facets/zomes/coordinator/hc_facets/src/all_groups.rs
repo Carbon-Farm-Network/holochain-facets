@@ -18,7 +18,7 @@ pub fn get_facet_groups(_: ()) -> ExternResult<Vec<FacetGroupResponseParams>> {
     let get_input: Vec<GetInput> = links
         .into_iter()
         .map(|link| GetInput::new(
-            ActionHash::from(link.target).into(),
+            ActionHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected entryhash".into()))).unwrap().into(),
             GetOptions::default(),
         ))
         .collect();
@@ -83,7 +83,7 @@ GetGroupForFacetInput { facet_option_hash }: GetGroupForFacetInput
     let get_input: Vec<GetInput> = links
         .into_iter()
         .map(|link| GetInput::new(
-            EntryHash::from(link.target).into(),
+            EntryHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected entryhash".into()))).unwrap().into(),
             GetOptions::default(),
         ))
         .collect();
