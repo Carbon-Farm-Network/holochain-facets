@@ -1,5 +1,5 @@
 {
-  description = "Convergent group decision making";
+  description = "Facets for Holochain development";
 
   inputs = {
     versions.url  = "github:holochain/holochain?dir=versions/0_2";
