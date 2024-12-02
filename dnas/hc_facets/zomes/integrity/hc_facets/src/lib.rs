@@ -11,7 +11,7 @@ pub use facet_group::*;
 use hdi::prelude::*;
 #[derive(Serialize, Deserialize)]
 #[serde(tag = "type")]
-#[hdk_entry_defs]
+#[hdk_entry_types]
 #[unit_enum(UnitEntryTypes)]
 pub enum EntryTypes {
     FacetGroup(FacetGroup),
@@ -97,86 +97,86 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
         }
         FlatOp::RegisterUpdate(update_entry) => {
             match update_entry {
-                OpUpdate::Entry {
-                    original_action,
-                    original_app_entry,
-                    app_entry,
-                    action,
-                } => {
-                    match (app_entry, original_app_entry) {
-                        (
-                            EntryTypes::FacetValue(facet_value),
-                            EntryTypes::FacetValue(original_facet_value),
-                        ) => {
-                            validate_update_facet_value(
-                                action,
-                                facet_value,
-                                original_action,
-                                original_facet_value,
-                            )
-                        }
-                        (
-                            EntryTypes::FacetOption(facet_option),
-                            EntryTypes::FacetOption(original_facet_option),
-                        ) => {
-                            validate_update_facet_option(
-                                action,
-                                facet_option,
-                                original_action,
-                                original_facet_option,
-                            )
-                        }
-                        (
-                            EntryTypes::FacetGroup(facet_group),
-                            EntryTypes::FacetGroup(original_facet_group),
-                        ) => {
-                            validate_update_facet_group(
-                                action,
-                                facet_group,
-                                original_action,
-                                original_facet_group,
-                            )
-                        }
-                        _ => {
-                            Ok(
-                                ValidateCallbackResult::Invalid(
-                                    "Original and updated entry types must be the same"
-                                        .to_string(),
-                                ),
-                            )
-                        }
-                    }
-                }
+                // OpUpdate::Entry {
+                //     original_action,
+                //     original_app_entry,
+                //     app_entry,
+                //     action,
+                // } => {
+                //     match (app_entry, original_app_entry) {
+                //         (
+                //             EntryTypes::FacetValue(facet_value),
+                //             EntryTypes::FacetValue(original_facet_value),
+                //         ) => {
+                //             validate_update_facet_value(
+                //                 action,
+                //                 facet_value,
+                //                 original_action,
+                //                 original_facet_value,
+                //             )
+                //         }
+                //         (
+                //             EntryTypes::FacetOption(facet_option),
+                //             EntryTypes::FacetOption(original_facet_option),
+                //         ) => {
+                //             validate_update_facet_option(
+                //                 action,
+                //                 facet_option,
+                //                 original_action,
+                //                 original_facet_option,
+                //             )
+                //         }
+                //         (
+                //             EntryTypes::FacetGroup(facet_group),
+                //             EntryTypes::FacetGroup(original_facet_group),
+                //         ) => {
+                //             validate_update_facet_group(
+                //                 action,
+                //                 facet_group,
+                //                 original_action,
+                //                 original_facet_group,
+                //             )
+                //         }
+                //         _ => {
+                //             Ok(
+                //                 ValidateCallbackResult::Invalid(
+                //                     "Original and updated entry types must be the same"
+                //                         .to_string(),
+                //                 ),
+                //             )
+                //         }
+                //     }
+                // }
                 _ => Ok(ValidateCallbackResult::Valid),
             }
         }
         FlatOp::RegisterDelete(delete_entry) => {
             match delete_entry {
-                OpDelete::Entry { original_action, original_app_entry, action } => {
-                    match original_app_entry {
-                        EntryTypes::FacetGroup(facet_group) => {
-                            validate_delete_facet_group(
-                                action,
-                                original_action,
-                                facet_group,
-                            )
-                        }
-                        EntryTypes::FacetOption(facet_option) => {
-                            validate_delete_facet_option(
-                                action,
-                                original_action,
-                                facet_option,
-                            )
-                        }
-                        EntryTypes::FacetValue(facet_value) => {
-                            validate_delete_facet_value(
-                                action,
-                                original_action,
-                                facet_value,
-                            )
-                        }
-                    }
-                }
+                // OpDelete::Entry { original_action, original_app_entry, action } => {
+                //     match original_app_entry {
+                //         EntryTypes::FacetGroup(facet_group) => {
+                //             validate_delete_facet_group(
+                //                 action,
+                //                 original_action,
+                //                 facet_group,
+                //             )
+                //         }
+                //         EntryTypes::FacetOption(facet_option) => {
+                //             validate_delete_facet_option(
+                //                 action,
+                //                 original_action,
+                //                 facet_option,
+                //             )
+                //         }
+                //         EntryTypes::FacetValue(facet_value) => {
+                //             validate_delete_facet_value(
+                //                 action,
+                //                 original_action,
+                //                 facet_value,
+                //             )
+                //         }
+                //     }
+                // }
                 _ => Ok(ValidateCallbackResult::Valid),
             }
         }

@@ -1,5 +1,6 @@
 use hdk::prelude::*;
 use hc_facets_integrity::*;
+use crate::utils::link_input;
 use crate::try_decode_entry;
 use crate::try_entry_from_record;
 #[derive(Clone, Serialize, Deserialize, SerializedBytes, Debug)]
@@ -76,7 +77,9 @@ pub struct GetFacetValueInput {
 pub fn get_facet_values_for_facet_option(
     GetFacetValueInput { facet_option_hash }: GetFacetValueInput
 ) -> ExternResult<Vec<FacetValueResponseParams>> {
-    let links = get_links(facet_option_hash, LinkTypes::FacetOptionToFacetValues, None)?;
+    let links = get_links(link_input(
+        facet_option_hash, LinkTypes::FacetOptionToFacetValues, None
+    ))?;
     let get_input: Vec<GetInput> = links
         .into_iter()
         .map(|link| GetInput::new(
@@ -133,11 +136,11 @@ pub fn use_facet_value(input: AddFacetValueForFacetOptionInput) -> ExternResult<
     let typed_path = path.typed(LinkTypes::IdentifierToFacetValue)?;
     debug!("typed path: {:?}", typed_path);
     typed_path.ensure()?;
-    let links = get_links(
+    let links = get_links(link_input(
         typed_path.path_entry_hash()?,
         LinkTypes::IdentifierToFacetValue,
         None,
-    )?;
+    ))?;
     for link in links {
         if link.target == input.facetValueId.clone().into() {
             delete_link(link.create_link_hash)?;
@@ -157,11 +160,11 @@ pub fn unlink_facet_value(input: AddFacetValueForFacetOptionInput) -> ExternResu
     let path = Path::from(format!("identifier/{}", input.identifier.to_string()));
     let typed_path = path.typed(LinkTypes::IdentifierToFacetValue)?;
     typed_path.ensure()?;
-    let links = get_links(
+    let links = get_links(link_input(
         typed_path.path_entry_hash()?,
         LinkTypes::IdentifierToFacetValue,
         None,
-    )?;
+    ))?;
     for link in links {
         if link.target == input.facetValueId.clone().into() {
             delete_link(link.create_link_hash)?;
@@ -180,11 +183,11 @@ pub fn retrieve_facet_values(
 ) -> ExternResult<Vec<FacetValueResponseParams>> {
     let path = Path::from(format!("identifier/{}", identifier.to_string()));
     let typed_path = path.typed(LinkTypes::IdentifierToFacetValue)?;
-    let links = get_links(
+    let links = get_links(link_input(
         typed_path.path_entry_hash()?,
         LinkTypes::IdentifierToFacetValue,
         None,
-    )?;
+    ))?;
     let get_input: Vec<GetInput> = links
         .into_iter()
         .map(|link| GetInput::new(
@@ -234,11 +237,11 @@ pub fn retrieve_facet_values(
 pub fn get_facet_value(
     original_facet_value_hash: EntryHash,
 ) -> ExternResult<Option<Record>> {
-    let links = get_links(
+    let links = get_links(link_input(
         original_facet_value_hash.clone(),
         LinkTypes::FacetValueUpdates,
         None,
-    )?;
+    ))?;
     let latest_link = links
         .into_iter()
         .max_by(|link_a, link_b| link_a.timestamp.cmp(&link_b.timestamp));

@@ -1,5 +1,6 @@
 use hdk::prelude::*;
 use hc_facets_integrity::*;
+use crate::utils::link_input;
 use crate::try_decode_entry;
 #[derive(Clone, Serialize, Deserialize, SerializedBytes, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -83,11 +84,11 @@ pub fn create_facet_group(
 pub fn get_facet_group(
     original_facet_group_hash: EntryHash,
 ) -> ExternResult<Option<Record>> {
-    let links = get_links(
+    let links = get_links(link_input(
         original_facet_group_hash.clone(),
         LinkTypes::FacetGroupUpdates,
         None,
-    )?;
+    ))?;
     let latest_link = links
         .into_iter()
         .max_by(|link_a, link_b| link_a.timestamp.cmp(&link_b.timestamp));

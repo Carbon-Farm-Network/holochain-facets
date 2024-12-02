@@ -1,5 +1,6 @@
 use hdk::prelude::*;
 use hc_facets_integrity::*;
+use crate::utils::link_input;
 use crate::try_decode_entry;
 #[derive(Clone, Serialize, Deserialize, SerializedBytes, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -72,7 +73,9 @@ GetFacetOptionInput { facet_group_hash }: GetFacetOptionInput
 ) -> ExternResult<Vec<FacetOptionResponseParams>> {
     debug!("get_facet_groups_for_facet_option");
     debug!("facet_option_hash: {:?}", facet_group_hash.clone());
-    let links = get_links(facet_group_hash.clone(), LinkTypes::FacetGroupToFacetOptions, None)?;
+    let links = get_links(link_input(
+        facet_group_hash.clone(), LinkTypes::FacetGroupToFacetOptions, None
+    ))?;
     debug!("links: {:?}", links.clone());
     let get_input: Vec<GetInput> = links
         .into_iter()
@@ -124,7 +127,9 @@ pub struct GetFacetForValueInput {
 pub fn get_facet_option_for_facet_value(
     GetFacetForValueInput { facet_value_hash }: GetFacetForValueInput
 ) -> ExternResult<FacetOptionResponseParams> {
-    let mut links = get_links(facet_value_hash, LinkTypes::FacetValueToFacetOptions, None)?;
+    let mut links = get_links(link_input(
+        facet_value_hash, LinkTypes::FacetValueToFacetOptions, None
+    ))?;
 
     let link = links.pop().ok_or(wasm_error!("Could not get facet option."))?;
 
@@ -153,11 +158,11 @@ pub fn get_facet_option_for_facet_value(
 pub fn get_facet_option(
     original_facet_option_hash: EntryHash,
 ) -> ExternResult<Option<Record>> {
-    let links = get_links(
+    let links = get_links(link_input(
         original_facet_option_hash.clone(),
         LinkTypes::FacetOptionUpdates,
         None,
-    )?;
+    ))?;
     let latest_link = links
         .into_iter()
         .max_by(|link_a, link_b| link_a.timestamp.cmp(&link_b.timestamp));

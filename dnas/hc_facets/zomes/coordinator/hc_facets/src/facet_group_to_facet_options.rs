@@ -1,5 +1,6 @@
 use hdk::prelude::*;
 use hc_facets_integrity::*;
+use crate::utils::link_input;
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AddFacetOptionForFacetGroupInput {
     pub base_facet_group_hash: EntryHash,
@@ -90,21 +91,21 @@ pub struct RemoveFacetOptionForFacetGroupInput {
 pub fn remove_facet_option_for_facet_group(
     input: RemoveFacetOptionForFacetGroupInput,
 ) -> ExternResult<()> {
-    let links = get_links(
+    let links = get_links(link_input(
         input.base_facet_group_hash.clone(),
         LinkTypes::FacetGroupToFacetOptions,
         None,
-    )?;
+    ))?;
     for link in links {
         if EntryHash::try_from(link.target.clone()).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected entryhash".into()))).unwrap().eq(&input.target_facet_option_hash) {
             delete_link(link.create_link_hash)?;
         }
     }
-    let links = get_links(
+    let links = get_links(link_input(
         input.target_facet_option_hash.clone(),
         LinkTypes::FacetOptionToFacetGroups,
         None,
-    )?;
+    ))?;
     for link in links {
         if EntryHash::try_from(link.target.clone()).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected entryhash".into()))).unwrap().eq(&input.base_facet_group_hash) {
             delete_link(link.create_link_hash)?;

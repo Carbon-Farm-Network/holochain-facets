@@ -1,24 +1,57 @@
 <script lang="ts">
   import { onMount, setContext } from 'svelte';
-  import type { ActionHash, AppAgentClient } from '@holochain/client';
-  import { AppAgentWebsocket } from '@holochain/client';
+  import type { ActionHash, AppClient, AppWebsocketConnectionOptions } from '@holochain/client';
+  import { AppWebsocket, AdminWebsocket } from '@holochain/client';
   import '@material/mwc-circular-progress';
 
   import { clientContext } from './contexts';
     import CreateFacetGroup from './hc_facets/hc_facets/CreateFacetGroup.svelte';
     import AllGroups from './hc_facets/hc_facets/AllGroups.svelte';
 
-  let client: AppAgentClient | undefined;
+  let client: AppClient | undefined;
   let loading = true;
+  let tokenResp: any;
+
+  const appId = import.meta.env.VITE_APP_ID ? import.meta.env.VITE_APP_ID : 'hc-facets'
+  const appPort = import.meta.env.VITE_APP_PORT ? import.meta.env.VITE_APP_PORT : 8888
+  const adminPort = import.meta.env.VITE_ADMIN_PORT
+  const url = `ws://localhost:${appPort}`;
 
   $: client, loading;
 
   onMount(async () => {
     // We pass '' as url because it will dynamically be replaced in launcher environments
-    client = await AppAgentWebsocket.connect('', 'hc-facets');
+    // client = await AppAgentWebsocket.connect('', 'hc-facets');
+    // loading = false;
+
+    if (adminPort) {
+      const url = `ws://localhost:${adminPort}`;
+      console.log("connecting to admin port at:", url);
+      const adminWebsocket = await AdminWebsocket.connect({
+        url: new URL(url)
+      });
+      console.log("issuing token");
+      tokenResp = await adminWebsocket.issueAppAuthenticationToken({
+        installed_app_id: appId,
+      });
+      console.log("token", tokenResp);
+      const x = await adminWebsocket.listApps({});
+      console.log("apps", x);
+      const cellIds = await adminWebsocket.listCellIds();
+      console.log("CELL IDS", cellIds);
+      await adminWebsocket.authorizeSigningCredentials(cellIds[0]);
+    }
+    console.log("appPort and Id is", appPort, appId);
+    const params: AppWebsocketConnectionOptions = { url: new URL(url) };
+    console.log("params", params);
+    if (tokenResp) params.token = tokenResp.token;
+    console.log("connecting to app port at:", params.url);
+    client = await AppWebsocket.connect(params);
+    console.log("client", client);
+
     loading = false;
   });
-
+    
   setContext(clientContext, {
     getClient: () => client,
   });
@@ -43,8 +76,6 @@
       <ol>
         <li>Import the elements with:
         <pre>
-import AllTodos from './todos/todos/AllTodos.svelte';
-import CreateTodo from './todos/todos/CreateTodo.svelte';
         </pre>
         </li>
         <li>Replace this "EDIT ME!" section with <code>&lt;CreateTodo&gt;&lt;/CreateTodo&gt;&lt;AllTodos&gt;&lt;/AllTodos&gt;</code>.</li>

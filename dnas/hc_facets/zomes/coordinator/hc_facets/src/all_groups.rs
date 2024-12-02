@@ -1,5 +1,6 @@
 use hdk::prelude::*;
 use hc_facets_integrity::*;
+use crate::utils::link_input;
 use crate::try_decode_entry;
 
 #[derive(Clone, Serialize, Deserialize, SerializedBytes, Debug)]
@@ -14,7 +15,9 @@ pub struct FacetGroupResponseParams {
 #[hdk_extern]
 pub fn get_facet_groups(_: ()) -> ExternResult<Vec<FacetGroupResponseParams>> {
     let path = Path::from("all_groups");
-    let links = get_links(path.path_entry_hash()?, LinkTypes::AllGroups, None)?;
+    let links = get_links(link_input(
+        path.path_entry_hash()?, LinkTypes::AllGroups, None
+    ))?;
     let get_input: Vec<GetInput> = links
         .into_iter()
         .map(|link| GetInput::new(
@@ -78,7 +81,9 @@ pub struct GetGroupForFacetInput {
 pub fn get_facet_groups_for_facet_option(
 GetGroupForFacetInput { facet_option_hash }: GetGroupForFacetInput
 ) -> ExternResult<Vec<FacetGroupResponseParams>> {
-    let links = get_links(facet_option_hash, LinkTypes::FacetOptionToFacetGroups, None)?;
+    let links = get_links(link_input(
+        facet_option_hash, LinkTypes::FacetOptionToFacetGroups, None
+    ))?;
 
     let get_input: Vec<GetInput> = links
         .into_iter()

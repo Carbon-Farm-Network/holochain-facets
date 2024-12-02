@@ -4,6 +4,7 @@ pub mod facet_group_to_facet_options;
 pub mod facet_value;
 pub mod facet_option;
 pub mod facet_group;
+pub mod utils;
 use hdk::prelude::*;
 use hc_facets_integrity::*;
 
