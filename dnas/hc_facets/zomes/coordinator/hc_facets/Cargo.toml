@@ -10,5 +10,5 @@ name = "hc_facets"
 [dependencies]
 hdk = { workspace = true }
 serde = { workspace = true }
-
+holochain_serialized_bytes = { workspace = true }
 hc_facets_integrity = { workspace = true }
